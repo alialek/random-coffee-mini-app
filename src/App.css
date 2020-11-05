@@ -1,0 +1,20 @@
+.d-col {
+	display: flex;
+	flex-direction: column;
+}
+
+.fill-width {
+	width: 100%;
+}
+
+.align-center {
+	align-items: center;
+}
+
+.justify-space-evenly {
+	justify-content: space-evenly;
+}
+
+.justify-center {
+	justify-content: center;
+}
