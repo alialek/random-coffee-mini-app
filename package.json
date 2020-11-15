@@ -14,16 +14,24 @@
   "license": "MIT",
   "devDependencies": {
     "cross-env": "^5.2.0",
+    "eslint": "^6.8.0",
+    "eslint-config-airbnb": "^18.2.1",
+    "eslint-plugin-import": "^2.22.1",
+    "eslint-plugin-jsx-a11y": "^6.4.1",
+    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react-hooks": "^4.2.0",
     "react-hot-loader": "^4.9.0",
-    "react-scripts": "^3.4.1"
+    "react-scripts": "^3.4.4"
   },
   "dependencies": {
     "@happysanta/router": "^0.1.9",
+    "@vkontakte/eslint-config": "^2.5.0",
     "@vkontakte/icons": "^1.50.0",
     "@vkontakte/vk-bridge": "^2.3.0",
     "@vkontakte/vk-mini-apps-api": "^0.6.5",
     "@vkontakte/vk-miniapps-deploy": "0.0.17",
     "@vkontakte/vkui": "^3.12.8",
+    "axios": "^0.21.0",
     "babel-eslint": "^10.1.0",
     "chalk": "^2.4.2",
     "core-js": "^3.6.4",

@@ -1,4 +1,4 @@
-import { Panel, Div, Button, View, Gallery, Input, FormLayout, Textarea, Title, Text } from '@vkontakte/vkui';
+import { Panel, Div, Button, View, Gallery, FormLayout, Textarea, Title, Text } from '@vkontakte/vkui';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -9,8 +9,10 @@ import coin from '../img/coin.png';
 import gear from '../img/gear.png';
 import { PANEL_INTRO } from '../router/routers';
 import './intro.css';
-import { getProfile } from '../store/data/actions';
-
+import { getProfile, setAbout } from '../store/data/actions';
+import { registerUser } from './../services/registerUser';
+import { getUserInfo } from '../vk';
+import AboutTextArea from './../components/AboutTextArea';
 class Intro extends React.Component {
 	constructor(props) {
 		super(props);
@@ -40,7 +42,7 @@ class Intro extends React.Component {
 				},
 				{
 					title: 'Почему это платно?',
-					description: 'Плата за участие - 100₽ в месяц. Что вы получаете:',
+					description: 'Плата за участие - 100₽ в месяц. Что ты получаешь:',
 					bullets: [
 						'4 встречи с интересными людьми',
 						'Заинтересованное коммьюнити',
@@ -53,26 +55,22 @@ class Intro extends React.Component {
 					title: 'Давай познакомимся поближе',
 					input: (
 						<div className="fill-width">
-							<FormLayout className="slide__form">
-								<Textarea
-									top="О себе"
-									placeholder="Здесь ты можешь оставить любую информацию о себе, которая будет полезна участникам"
-								/>
-							</FormLayout>
+							<AboutTextArea setAbout={(text) => this.props.setAbout(text)} />
 						</div>
 					),
+					button: 'Сохранить',
+				},
+				{
+					title: 'Добро пожаловать!',
+					description: 'Теперь осталось дождаться понедельника. Будем рады пообщаться!',
+					icon: coffee,
 					button: 'Продолжить',
 				},
 			],
 		};
 	}
-	componentDidMount() {
-		this.props.getProfile();
-	}
-
 	render() {
 		let { profile } = this.props;
-		console.log(profile);
 		return (
 			<View id={this.props.id} activePanel={this.props.activePanel}>
 				<Panel id={PANEL_INTRO} separator={false} centered={true} className="intro-panel">
@@ -112,7 +110,11 @@ class Intro extends React.Component {
 
 								<Div className="slide__button-holder">
 									<Button
-										onClick={() => this.setState(() => this.state.slideIndex++)}
+										onClick={() =>
+											slide.button !== 'Продолжить'
+												? this.setState(() => this.state.slideIndex++)
+												: registerUser(this.props.about)
+										}
 										mode="primary"
 										size="l"
 										stretched={true}
@@ -132,13 +134,14 @@ class Intro extends React.Component {
 const mapStateToProps = (state) => {
 	return {
 		profile: state.data.profile,
+		about: state.data.about,
 	};
 };
 
 function mapDispatchToProps(dispatch) {
 	return {
 		dispatch,
-		...bindActionCreators({ getProfile }, dispatch),
+		...bindActionCreators({ getProfile, setAbout }, dispatch),
 	};
 }
 

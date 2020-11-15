@@ -1,20 +1,48 @@
 .d-col {
-	display: flex;
-	flex-direction: column;
+    display: flex;
+    flex-direction: column;
+}
+
+.d-row {
+    display: flex;
 }
 
 .fill-width {
-	width: 100%;
+    width: 100%;
 }
 
 .align-center {
-	align-items: center;
+    align-items: center;
 }
 
 .justify-space-evenly {
-	justify-content: space-evenly;
+    justify-content: space-evenly;
 }
 
 .justify-center {
-	justify-content: center;
+    justify-content: center;
+}
+
+.p-relative {
+    position: relative;
+}
+
+.p-absolute {
+    position: absolute;
+}
+
+.custom-header--shown {
+    visibility: visible !important;
+    opacity: 1 !important;
+    transition: visibility 1s, opacity 0.3s linear;
+}
+
+.custom-header {
+    visibility: hidden;
+    opacity: 0;
+    transition: visibility 1s, opacity 0.3s linear;
+}
+
+.my-1 {
+    margin: 8px 0;
 }

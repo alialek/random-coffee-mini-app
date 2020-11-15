@@ -7,7 +7,7 @@ import { PANEL_MAIN } from './../router/routers';
 class Main extends Component {
 	render() {
 		return (
-			<View id={this.props.id} activePanel={this.props.activePanel}>
+			<View id={this.props.id} modal={this.props.modal} activePanel={this.props.activePanel}>
 				<Home id={PANEL_MAIN} />
 			</View>
 		);
