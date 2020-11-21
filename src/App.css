@@ -3,8 +3,12 @@
     flex-direction: column;
 }
 
-.d-row {
-    display: flex;
+.d-row,
+.d-flex {
+    display: flex !important;
+}
+.spacer-1 {
+    width: 8px;
 }
 
 .fill-width {
@@ -45,4 +49,8 @@
 
 .my-1 {
     margin: 8px 0;
+}
+
+.Switch--ios .Switch__pseudo {
+    border: 2px solid rgba(140, 140, 140, 0.2);
 }

@@ -2,18 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from '@happysanta/router';
-import bridge from '@vkontakte/vk-bridge';
 import '@vkontakte/vkui/dist/vkui.css';
 
 import Intro from './views/Intro';
 import Main from './views/Main';
 import { ConfigProvider, ScreenSpinner, Root, ModalRoot } from '@vkontakte/vkui';
-import { VIEW_INTRO, VIEW_MAIN, MODAL_ABOUT } from './router/routers';
+import { router, VIEW_INTRO, VIEW_MAIN, MODAL_ABOUT, PAGE_MAIN, PAGE_INTRO, MODAL_HISTORY } from './router/routers';
 import './App.css';
 import { auth, user } from './api';
 import { saveCredentials } from './services';
 import AboutCard from './components/AboutCard';
-import { getUserInfo } from './vk';
+import HistoryPage from './components/HistoryPage';
+import { getUserInfo, isIntroViewed } from './vk';
 import { getProfile, setNotifications, setAbout, setParticipantInfo } from './store/data/actions';
 
 class App extends React.Component {
@@ -24,21 +24,31 @@ class App extends React.Component {
         );
 
         auth(window.location.search)
-            .then((resp) => {
+            .then(async (resp) => {
                 saveCredentials(resp);
-                user().then((res) => {
-                    this.props.setAbout(res.data.about);
-                    this.props.setParticipantInfo({ history: [res.data.current], current: res.data.current });
-                });
+                if ((await isIntroViewed()) === 'viewed') {
+                    router.replacePage(PAGE_MAIN);
+                    user().then((res) => {
+                        this.props.setAbout(res.data.about);
+                        this.props.setParticipantInfo({
+                            history: res.data.history,
+                            current: res.data.current,
+                            metrics: res.data.metrics,
+                        });
+                    });
+                } else {
+                    router.replacePage(PAGE_INTRO);
+                }
             })
             .finally(() => {});
     }
     render() {
         const { location, colorScheme, router } = this.props;
-        console.log(this.props);
+
         const modal = (
             <ModalRoot onClose={() => router.popPage()} activeModal={location.getModalId()}>
                 <AboutCard id={MODAL_ABOUT} />
+                <HistoryPage onClose={() => router.popPage()} id={MODAL_HISTORY} />
             </ModalRoot>
         );
         return (

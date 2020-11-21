@@ -1,4 +1,11 @@
-import { SET_COLOR_SCHEME, SET_PROFILE, SET_ABOUT, SET_NOTIFICATIONS, SET_PARTICIPANT_INFO } from './actionTypes.js';
+import {
+    SET_COLOR_SCHEME,
+    SET_SNACKBAR,
+    SET_PROFILE,
+    SET_ABOUT,
+    SET_NOTIFICATIONS,
+    SET_PARTICIPANT_INFO,
+} from './actionTypes.js';
 import { getUserInfo } from '../../vk/index';
 
 export const setColorScheme = (inputData) => ({
@@ -31,6 +38,13 @@ export const setNotifications = (inputData) => ({
 
 export const setParticipantInfo = (inputData) => ({
     type: SET_PARTICIPANT_INFO,
+    payload: {
+        data: inputData,
+    },
+});
+
+export const setSnackbar = (inputData) => ({
+    type: SET_SNACKBAR,
     payload: {
         data: inputData,
     },

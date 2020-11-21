@@ -13,38 +13,37 @@ const STORAGE_KEYS = {
 export const initApp = () => api.initApp();
 
 api.onUpdateConfig((res) => {
-    console.log(res);
     if (res?.scheme) store.dispatch(setColorScheme(res.scheme));
 });
 
-export const notifications = () => {
+export const notifications = (snack) => {
+    console.log('notifi');
     store.getState().data.notifications
         ? api.bridge.send('VKWebAppDenyNotifications').then((res) => {
               store.dispatch({ type: 'SET_NOTIFICATIONS', payload: { data: false } });
-              router.popPage();
+              store.dispatch({ type: 'SET_SNACKBAR', payload: { data: snack } });
           })
         : api.bridge
               .send('VKWebAppAllowNotifications')
               .then((res) => {
+                  store.dispatch({ type: 'SET_SNACKBAR', payload: { data: snack } });
+
                   store.dispatch({ type: 'SET_NOTIFICATIONS', payload: { data: true } });
-                  router.popPage();
               })
-              .catch(() => {
-                  router.popPage();
-              });
+              .catch(() => {});
 };
 
 export const getUserInfo = () => {
     return api.getUserInfo();
 };
 
+export const joinCommunity = () => {
+    return api.joinCommunity(200035810);
+};
+
 export const isIntroViewed = async () => {
-    (await api.storageGet(STORAGE_KEYS.STATUS)) === 'seen'
-        ? router.replacePage(PAGE_MAIN)
-        : router.replacePage(PAGE_INTRO);
+    return await api.storageGet(STORAGE_KEYS.STATUS);
 };
 export const setIntroViewed = async () => {
-    api.storageSet(STORAGE_KEYS.STATUS, 'seen')
-        .then((res) => router.replacePage(PAGE_MAIN))
-        .catch(() => router.replacePage(PAGE_MAIN));
+    api.storageSet(STORAGE_KEYS.STATUS, 'viewed').finally(() => router.replacePage(PAGE_MAIN));
 };

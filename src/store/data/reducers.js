@@ -1,4 +1,11 @@
-import { SET_COLOR_SCHEME, SET_PROFILE, SET_ABOUT, SET_NOTIFICATIONS, SET_PARTICIPANT_INFO } from './actionTypes';
+import {
+    SET_COLOR_SCHEME,
+    SET_PROFILE,
+    SET_ABOUT,
+    SET_NOTIFICATIONS,
+    SET_PARTICIPANT_INFO,
+    SET_SNACKBAR,
+} from './actionTypes';
 
 const initialState = {
     colorScheme: 'client_light',
@@ -6,6 +13,7 @@ const initialState = {
     about: '',
     participantInfo: null,
     notifications: false,
+    snackbar: null,
 };
 
 export const dataReducer = (state = initialState, action) => {
@@ -28,8 +36,13 @@ export const dataReducer = (state = initialState, action) => {
                 about: action.payload.data,
             };
         }
+        case SET_SNACKBAR: {
+            return {
+                ...state,
+                snackbar: action.payload.data,
+            };
+        }
         case SET_NOTIFICATIONS: {
-            console.log(action);
             return {
                 ...state,
                 notifications: action.payload.data,
