@@ -1,4 +1,4 @@
-import { Panel, Snackbar, Div, Button, View, Gallery, FormLayout, Textarea, Title, Text } from '@vkontakte/vkui';
+import { Panel, Snackbar, Div, Button, View, Gallery, Title, Text, Textarea, FormLayout } from '@vkontakte/vkui';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -7,79 +7,131 @@ import hi from '../img/hi.png';
 import handshake from '../img/handshake.png';
 import coin from '../img/coin.png';
 import gear from '../img/gear.png';
-import { PANEL_INTRO } from '../router/routers';
+import { PANEL_INTRO, POPOUT_SPINNER } from '../router/routers';
 import './intro.css';
 import { getProfile, setAbout, setParticipantInfo } from '../store/data/actions';
-import { registerUser } from './../services/registerUser';
-import { getUserInfo } from '../vk';
 import Icon28CancelCircleFillRed from '@vkontakte/icons/dist/28/cancel_circle_fill_red';
-import AboutTextArea from './../components/AboutTextArea';
 import { user } from './../api/rest/user';
+import { setInterests } from './../store/data/actions';
+import { setIntroViewed, tapticSelectNotification } from './../vk/index';
+import { updateInterests } from './../api/rest/interests';
+import InterestsPick from './../components/InterestsPick';
+import { withRouter } from '@happysanta/router';
+import { register } from './../api/rest/reg';
+
 class Intro extends React.Component {
     constructor(props) {
         super(props);
-
+        this.inputRef = React.createRef();
         this.state = {
             slideIndex: 0,
             snackbar: null,
             slides: [
                 {
                     title: 'Привет!',
-                    description: 'Random Coffee VK - сообщество людей, которые ценят нетворкинг и полезные связи.',
+                    description: 'Random Coffee VK — сообщество людей, которые ценят нетворкинг и полезные связи.',
                     icon: hi,
                     button: 'Далее',
+                    isValid: () => true,
                 },
                 {
                     title: 'Как это работает?',
                     description:
-                        'Каждый понедельник мы соединяем тебя со случайным участником сообщества. Перед встречей или созвоном ознакомься с анкетой собеседника - это поможет найти общие темы',
+                        'Каждый понедельник мы соединяем тебя со случайным участником сообщества. Перед встречей или созвоном ознакомься с анкетой собеседника — это поможет найти общие темы.',
                     icon: gear,
                     button: 'Далее',
+                    isValid: () => true,
                 },
-                // {
-                // 	title: 'Как вступить в сообщество?',
-                // 	description:
-                // 		'Все, что нужно сделать - подписаться на нашу группу Random Coffee VK и оформить подписку VK Donut.',
-                // 	icon: handshake,
-                // 	button: 'Далее',
-                // },{
                 {
                     title: 'Как вступить в сообщество?',
-                    description: 'Все, что нужно сделать - заполнить анкету в приложении',
+                    description: 'Все, что нужно сделать — заполнить анкету.',
                     icon: handshake,
                     button: 'Далее',
+                    isValid: () => true,
                 },
                 // {
-                // 	title: 'Почему это платно?',
-                // 	description: 'Плата за участие - 100₽ в месяц. Что ты получаешь:',
-                // 	bullets: [
-                // 		'4 встречи с интересными людьми',
-                // 		'Заинтересованное коммьюнити',
-                // 		'Советы по продуктивному нетворкингу',
-                // 	],
-                // 	icon: coin,
-                // 	button: 'Далее',
+                //     title: 'Почему это платно?',
+                //     description: 'Плата за участие — 100₽ в месяц. Что ты получаешь:',
+                //     bullets: [
+                //         '4 встречи с интересными людьми',
+                //         'Заинтересованное коммьюнити',
+                //         'Советы по продуктивному нетворкингу',
+                //     ],
+                //     icon: coin,
+                //     button: 'Далее',
+                //     isValid: () => true,
                 // },
                 {
                     title: 'Давай познакомимся поближе',
-                    input: (
-                        <div className="fill-width">
-                            <AboutTextArea setAbout={(text) => this.props.setAbout(text)} />
-                        </div>
-                    ),
+                    input: 'О себе',
                     button: 'Сохранить',
+                    isValid: () => this.props.about.length > 0,
+                    fallBack: () => this.openBase('Вы не заполнили поле о себе'),
+                },
+                {
+                    title: 'Чем ты интересуешься?',
+                    input: 'Интересы',
+                    button: 'Сохранить',
+                    isValid: () => this.props.interests.length > 0,
+                    fallBack: () => this.openBase('Выберите хотя бы один интерес'),
                 },
                 {
                     title: 'Добро пожаловать!',
                     description: 'Теперь осталось дождаться понедельника. Будем рады пообщаться!',
                     icon: coffee,
+                    isValid: () => true,
                     button: 'Продолжить',
                 },
             ],
         };
     }
 
-    openBase() {
+    changeIndex(slideIndex) {
+        if (this.state.slideIndex === 3) this.inputRef.current.element.blur();
+        this.setState({ slideIndex });
+    }
+
+    registerUser() {
+        if (
+            this.state.slides.reduce((previousValue, currentValue) => {
+                return previousValue && currentValue.isValid();
+            })
+        ) {
+            this.props.router.replacePopup(POPOUT_SPINNER);
+            register(this.props.about)
+                .then(() => updateInterests(this.props.interests))
+                .then(() => user())
+                .then((res) => {
+                    setIntroViewed();
+
+                    this.props.setAbout(res.data.about);
+                    this.props.setInterests(res.data.interests);
+                    this.props.setParticipantInfo({
+                        history: res.data.history,
+                        current: res.data.current,
+                        metrics: res.data.metrics,
+                        statuses: res.data.statuses,
+                    });
+                })
+                .catch(() => {
+                    this.props.setParticipantInfo('error');
+                })
+                .finally(() => {
+                    this.props.router.replacePopup(null);
+                });
+        } else {
+            this.openBase('Вы пропустили некоторые поля');
+        }
+    }
+    getClassName(i) {
+        return this.props.interests.includes(i) ? 'chip--active' : '';
+    }
+    setInterests(i) {
+        tapticSelectNotification();
+        this.props.setInterests(i);
+    }
+
+    openBase(text) {
         if (this.state.snackbar) return;
         this.setState({
             snackbar: (
@@ -89,7 +141,7 @@ class Intro extends React.Component {
                     onClose={() => this.setState({ snackbar: null })}
                     before={<Icon28CancelCircleFillRed width={24} height={24} />}
                 >
-                    Вы не заполнили поле о себе
+                    {text}
                 </Snackbar>
             ),
         });
@@ -97,10 +149,12 @@ class Intro extends React.Component {
     render() {
         let { profile } = this.props;
         return (
-            <View id={this.props.id} activePanel={this.props.activePanel}>
+            <View id={this.props.id} popout={this.props.popout} activePanel={this.props.activePanel}>
                 <Panel id={PANEL_INTRO} separator={false} centered={true} className="intro-panel">
                     <Gallery
-                        onChange={(slideIndex) => this.setState({ slideIndex })}
+                        onChange={(slideIndex) => {
+                            this.changeIndex(slideIndex);
+                        }}
                         slideIndex={this.state.slideIndex}
                         slideWidth="100%"
                         align="right"
@@ -124,39 +178,54 @@ class Intro extends React.Component {
                                         <Text className="slide__text">{slide.description} </Text>
                                         {slide?.bullets && (
                                             <ul>
-                                                {slide.bullets.map((bullet, i) => (
-                                                    <li key={i}>{bullet}</li>
+                                                {slide.bullets.map((bullet, n) => (
+                                                    <li key={n}>
+                                                        {' '}
+                                                        <Text>{bullet}</Text>
+                                                    </li>
                                                 ))}
                                             </ul>
                                         )}
                                     </Div>
                                 )}
-                                {slide?.input && <Div className="fill-width d-col align-center">{slide.input}</Div>}
+                                {slide?.input && slide.input === 'О себе' && (
+                                    <Div className="fill-width d-col align-center">
+                                        <div className="fill-width">
+                                            <FormLayout className="slide__form">
+                                                <Textarea
+                                                    ref={this.inputRef}
+                                                    value={this.props.about}
+                                                    onBlur={(e) => this.props.setAbout(e.target.value.trim())}
+                                                    onChange={(e) => this.props.setAbout(e.target.value)}
+                                                    top="О себе"
+                                                    maxLength="140"
+                                                    className="about-textarea"
+                                                    placeholder="Здесь ты можешь оставить любую информацию о себе, которая будет полезна участникам"
+                                                />
+                                            </FormLayout>
+                                        </div>
+                                    </Div>
+                                )}
+                                {slide?.input && slide.input === 'Интересы' && (
+                                    <Div>
+                                        <InterestsPick />
+                                    </Div>
+                                )}
 
                                 <Div className="slide__button-holder">
                                     <Button
-                                        onClick={() =>
-                                            slide.button !== 'Продолжить'
-                                                ? this.setState(() => this.state.slideIndex++)
-                                                : this.props.about.length
-                                                ? registerUser(this.props.about)
-                                                      .then(() => {
-                                                          user().then((res) => {
-                                                              this.props.setAbout(res.data.about);
-                                                              this.props.setParticipantInfo({
-                                                                  history: res.data.history,
-                                                                  current: res.data.current,
-                                                              });
-                                                          });
-                                                      })
-                                                      .catch(() => {
-                                                          this.props.setParticipantInfo('error');
-                                                      })
-                                                : this.openBase()
-                                        }
+                                        onClick={() => {
+                                            if (slide.button === 'Сохранить' || slide.button === 'Далее') {
+                                                slide.isValid()
+                                                    ? this.setState(() => this.state.slideIndex++)
+                                                    : slide.fallBack();
+                                                console.log(slide.isValid());
+                                            }
+
+                                            if (slide.button === 'Продолжить') this.registerUser();
+                                        }}
                                         mode="primary"
-                                        size="l"
-                                        stretched={true}
+                                        size="xl"
                                     >
                                         {slide.button}
                                     </Button>
@@ -175,14 +244,15 @@ const mapStateToProps = (state) => {
     return {
         profile: state.data.profile,
         about: state.data.about,
+        interests: state.data.interests,
     };
 };
 
 function mapDispatchToProps(dispatch) {
     return {
         dispatch,
-        ...bindActionCreators({ getProfile, setAbout, setParticipantInfo }, dispatch),
+        ...bindActionCreators({ getProfile, setAbout, setParticipantInfo, setInterests }, dispatch),
     };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Intro);
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Intro));

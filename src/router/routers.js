@@ -13,6 +13,7 @@ export const MODAL_ABOUT = 'modal_about';
 export const MODAL_HISTORY = 'modal_history';
 
 export const POPOUT_CONFIRM = 'popout_confirm';
+export const POPOUT_SPINNER = 'popout_spinner';
 
 const routes = {
     [PAGE_MAIN]: new Page(PANEL_MAIN, VIEW_MAIN),

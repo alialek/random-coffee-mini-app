@@ -5,8 +5,9 @@ import {
     SET_ABOUT,
     SET_NOTIFICATIONS,
     SET_PARTICIPANT_INFO,
+    SET_INTERESTS,
+    SET_ADD,
 } from './actionTypes.js';
-import { getUserInfo } from '../../vk/index';
 
 export const setColorScheme = (inputData) => ({
     type: SET_COLOR_SCHEME,
@@ -17,6 +18,20 @@ export const setColorScheme = (inputData) => ({
 
 export const getProfile = (data) => ({
     type: SET_PROFILE,
+    payload: {
+        data: data,
+    },
+});
+
+export const setAdd = (data) => ({
+    type: SET_ADD,
+    payload: {
+        data,
+    },
+});
+
+export const setInterests = (data) => ({
+    type: SET_INTERESTS,
     payload: {
         data: data,
     },

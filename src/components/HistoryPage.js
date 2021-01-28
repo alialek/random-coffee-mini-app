@@ -10,7 +10,7 @@ import {
     RichCell,
     withPlatform,
 } from '@vkontakte/vkui';
-import React, { Component, Fragment } from 'react';
+import React, { Component} from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from '@happysanta/router';
 import { Icon24Cancel } from '@vkontakte/icons';
@@ -38,9 +38,8 @@ class HistoryPage extends Component {
                 dynamicContentHeight
             >
                 {participantInfo.history.map((participant, i) => (
-                    <Link href={`https://vk.com/im?sel=${participant.info.id}`}>
+                    <Link key={i} href={`https://vk.com/im?sel=${participant.info.id}`}>
                         <RichCell
-                            key={i}
                             disabled
                             before={<Avatar size={48} src={participant.info.photo_100} />}
                             caption={participant.info.about}

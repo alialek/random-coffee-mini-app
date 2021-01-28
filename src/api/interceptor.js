@@ -1,4 +1,5 @@
 import axios from 'axios';
+
 const instance = axios.create({
     baseURL: 'https://pitchit.club/api/',
     timeout: 9000,
@@ -9,7 +10,12 @@ const instance = axios.create({
 
 instance.interceptors.request.use(
     (config) => {
-        let token = localStorage.getItem('user_rc') || null;
+        let token;
+        try {
+            token = localStorage.getItem('user_rc') || null;
+        } catch {
+            token = window.token || null;
+        }
         if (config.method === 'get') {
             //delete config.headers.common["Content-Type"];
         } else {
@@ -37,10 +43,11 @@ instance.interceptors.response.use(
             if (error.toJSON().message === 'Network Error') {
             } else if (error.toJSON().message.includes('timeout')) {
             } else if (error.response.status === 401) {
-                localStorage.removeItem('user_rc');
+                // localStorage.removeItem('user_rc');
                 delete axios.defaults.headers.common['Authorization'];
             } else {
             }
+            return Promise.reject(error);
         } catch (err) {}
         return Promise.reject(error);
     },

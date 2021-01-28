@@ -54,3 +54,58 @@
 .Switch--ios .Switch__pseudo {
     border: 2px solid rgba(140, 140, 140, 0.2);
 }
+
+.chips > * {
+    margin-top: 8px;
+    margin-right: 8px;
+}
+
+.chips {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 12px 0;
+    width: 100%;
+    max-width: 400px;
+}
+
+.Snackbar {
+    z-index: 100000 !important;
+}
+
+.chip {
+    width: fit-content;
+    border-radius: 10px;
+    padding: 6px 12px;
+    cursor: pointer;
+    color: #888f97;
+
+    background-color: #f2f3f5;
+}
+.chip__text {
+    font-size: 15px !important;
+}
+.chip--active {
+    color: #5e81f4;
+    background-color: #eef2fd;
+}
+
+.about-textarea {
+    height: 120px
+}
+
+.Button,
+a,
+button,
+.clickable {
+    cursor: pointer;
+}
+
+body[scheme='space_gray'] .chip {
+    background-color: #46474b;
+    color: #b5b8c0;
+}
+
+body[scheme='space_gray'] .chip--active {
+    background-color: #373c52;
+    color: #97b9e0;
+}

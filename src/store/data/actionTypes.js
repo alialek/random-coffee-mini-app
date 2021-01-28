@@ -1,6 +1,8 @@
 export const SET_COLOR_SCHEME = 'SET_COLOR_SCHEME';
 export const SET_PROFILE = 'SET_PROFILE';
 export const SET_SNACKBAR = 'SET_SNACKBAR';
+export const SET_INTERESTS = 'SET_INTERESTS';
 export const SET_ABOUT = 'SET_ABOUT';
 export const SET_NOTIFICATIONS = 'SET_NOTIFICATIONS';
 export const SET_PARTICIPANT_INFO = 'SET_PARTICIPANT_INFO';
+export const SET_ADD = 'SET_ADD';

@@ -22,24 +22,30 @@ import {
     InfoRow,
     Caption,
     Subhead,
-    PromoBanner,
 } from '@vkontakte/vkui';
 import { getProfile, setSnackbar } from '../store/data/actions';
 import { withRouter } from '@happysanta/router';
 import donut from '../img/donut.png';
-import { MODAL_ABOUT, MODAL_HISTORY, POPOUT_CONFIRM } from './../router/routers';
+import { MODAL_ABOUT, MODAL_HISTORY, POPOUT_CONFIRM } from '../router/routers';
 import './Home.css';
 import postBooks from '../img/post1.jpg';
 import postGlobe from '../img/post2.jpg';
-import { Icon24GearOutline, Icon28CheckCircleFill, Icon28ChevronUpOutline } from '@vkontakte/icons';
+import {
+    Icon24GearOutline,
+    Icon28CheckCircleFill,
+    Icon28CheckCircleFillYellow,
+    Icon56ErrorOutline,
+    Icon56UsersOutline,
+    Icon28ChevronUpOutline,
+} from '@vkontakte/icons';
 import Icon24HistoryBackwardOutline from '@vkontakte/icons/dist/24/history_backward_outline';
 import Icon24ReportOutline from '@vkontakte/icons/dist/24/report_outline';
 import coffee from '../img/coffee.png';
-import { shuffle } from './../api/rest/shuffle';
-import { user } from './../api/rest/user';
-import { getAdd, notifications } from '../vk';
-import { setAbout, setParticipantInfo } from './../store/data/actions';
-import { tapticSelectNotification } from './../vk/index';
+import { shuffle } from '../api/rest/shuffle';
+import { user } from '../api/rest/user';
+import { joinCommunity, notifications } from '../vk';
+import { setAbout, setParticipantInfo } from '../store/data/actions';
+import { tapticSelectNotification } from '../vk/index';
 import Icon16ErrorCircleFill from '@vkontakte/icons/dist/16/error_circle_fill';
 class Home extends React.Component {
     constructor(props) {
@@ -47,25 +53,15 @@ class Home extends React.Component {
         this.state = {
             snackbar: null,
             disabled: false,
-            appStarted: true,
             random: 0,
             ideas: [
-                'Как ты добился(ась) призвания?',
+                'Как ты добился призвания?',
                 'С чего начать погружение в твою сферу деятельности?',
-                'Кем ты хотел(а) стать в детстве?',
-                'Какой твой любимый сериал?',
-                'Какой фильм тебя больше всего мотивирует?',
-                'Какие книги ты помжешь порекомендовать почитать?',
-                'Ты занимаешься спортом?',
-                'Кто твой любимый персонаж из фильмов?',
-                'Как думаешь, необходимо ли высшее образование для успеха в жизни?',
-                'Что для тебя значит добиться успеха?',
-                'Чай или кофе?',
-                'Чем ты занимаешься в свободное время?',
+                'Как пропатчить KDE2 под FreeBSD?',
                 'Звездные войны или звездный путь?',
                 'Для чего ты участвуешь в Random Coffee?',
                 'Можешь ли ты помочь мне со следующим проектом?',
-                'Если бы открыли границы, куда бы ты поехал(а) в первую очередь?',
+                'Если бы открыли границы, куда бы ты поехал в первую очередь?',
                 'Как ты борешься с выгоранием?',
             ],
             posts: [
@@ -84,17 +80,9 @@ class Home extends React.Component {
             ],
         };
     }
-
-    declOfNum(number, titles) {
-        const cases = [2, 0, 1, 1, 1, 2];
-        return titles[number % 100 > 4 && number % 100 < 20 ? 2 : cases[number % 10 < 5 ? number % 10 : 5]];
-    }
     getRandom = (taptic = true) => {
         if (taptic) tapticSelectNotification();
-        let random = Math.floor(Math.random() * this.state.ideas.length);
-        if (random % 3 === 1 && !this.state.appStarted) getAdd('reward');
-        this.setState({ random });
-        this.setState({ appStarted: false });
+        this.setState({ random: Math.floor(Math.random() * this.state.ideas.length) });
     };
 
     openSnackBar(text, icon) {
@@ -172,110 +160,13 @@ class Home extends React.Component {
                 </PanelHeader>
                 {participantInfo !== null && participantInfo !== 'error' && (
                     <Fragment>
-                        <div className="profile2">
-                            <Div className=" profile__info2">
-                                <Title className="section-header" level="2" weight="medium">
-                                    Твой собеседник на этой неделе
-                                </Title>
-                                {Boolean(Object.keys(participantInfo.current).length) ? (
-                                    <div>
-                                        <Card>
-                                            <Div>
-                                                <div className="d-flex align-center justify-space-between Card__header">
-                                                    <div className="d-flex align-center ">
-                                                        <Icon16UserOutline fill="#4CD964" width={16} height={16} />{' '}
-                                                        <Caption
-                                                            level="2"
-                                                            weight="regular"
-                                                            style={{ opacity: 0.7, marginLeft: 8 }}
-                                                        >
-                                                            СОБЕСЕДНИК
-                                                        </Caption>
-                                                    </div>
+                        {!(participantInfo.statuses.don && participantInfo.statuses.subscriber) && (
+                            <div className="profile2">
+                                <Div className=" profile__info2">
+                                    <Title className="section-header" level="2" weight="medium">
+                                        Твой собеседник на этой неделе
+                                    </Title>
 
-                                                    <Icon24ReportOutline
-                                                        width={20}
-                                                        height={20}
-                                                        onClick={() => router.pushPopup(POPOUT_CONFIRM)}
-                                                        className="complain-icon clickable"
-                                                    />
-                                                </div>
-                                                <div className="d-row ">
-                                                    <img
-                                                        className="profile__photo profile__photo--participant2"
-                                                        src={participantInfo.current.info.photo_100}
-                                                    />
-                                                    <div>
-                                                        <Title
-                                                            className="profile__participant-name"
-                                                            level="1"
-                                                            weight="heavy"
-                                                        >
-                                                            {participantInfo.current.info.first_name}
-                                                            <br />
-                                                            {participantInfo.current.info.last_name}
-                                                        </Title>
-                                                    </div>
-                                                </div>
-                                            </Div>
-                                            <SimpleCell disabled multiline>
-                                                <InfoRow header="О себе"> {participantInfo.current.info.about}</InfoRow>
-                                            </SimpleCell>
-
-                                            {participantInfo.current.info?.city && (
-                                                <SimpleCell disabled>
-                                                    <InfoRow header="Город">
-                                                        {participantInfo.current.info.city.title}
-                                                    </InfoRow>
-                                                </SimpleCell>
-                                            )}
-                                            {participantInfo.current.info?.interests && (
-                                                <SimpleCell disabled multiline>
-                                                    <InfoRow header="Интересы">
-                                                        {participantInfo.current.info.interests.length > 0
-                                                            ? participantInfo.current.info.interests
-                                                                  .map((i) => this.props.defaultInterests[i])
-                                                                  .toString()
-                                                                  .split(',')
-                                                                  .join(', ')
-                                                            : 'Собеседник не указал свои интересы'}
-                                                    </InfoRow>
-                                                </SimpleCell>
-                                            )}
-                                            <SimpleCell multiline disabled>
-                                                <InfoRow header="Что можно спросить">
-                                                    <div className="d-row">
-                                                        <div className="flex-grow-1">
-                                                            {this.state.ideas[this.state.random]}
-                                                        </div>
-                                                        <div className="clickable" onClick={this.getRandom}>
-                                                            <Icon28RefreshOutline
-                                                                width={24}
-                                                                height={24}
-                                                                style={{ marginLeft: 8 }}
-                                                            />
-                                                        </div>
-                                                    </div>
-                                                </InfoRow>
-                                            </SimpleCell>
-                                            <Div>
-                                                <Link
-                                                    target="_blank"
-                                                    href={`https://vk.com/im?sel=${participantInfo.current.info.id}`}
-                                                >
-                                                    <Button
-                                                        before={<Icon24MessageOutline />}
-                                                        mode="secondary"
-                                                        stretched
-                                                        size="l"
-                                                    >
-                                                        <div className="d-row align-center">Написать</div>
-                                                    </Button>
-                                                </Link>
-                                            </Div>
-                                        </Card>
-                                    </div>
-                                ) : (
                                     <div>
                                         <Card>
                                             <Div>
@@ -299,9 +190,8 @@ class Home extends React.Component {
                                                         weight="regular"
                                                         style={{ opacity: 0.7 }}
                                                     >
-                                                        Ты участник Random Coffee! <br /> Возвращайся в следующий
-                                                        понедельник, чтобы узнать, кто твой собеседник. А пока
-                                                        ознакомься с материалами по нетворкингу в группе.
+                                                        Чтобы принять участие в нетворкинге, необходимо подписаться на
+                                                        группу Random Coffee и оформить подписку VK Donut.
                                                     </Caption>
                                                     <Button
                                                         style={{ margin: '16px 0 8px 0' }}
@@ -314,10 +204,160 @@ class Home extends React.Component {
                                             </Div>
                                         </Card>
                                     </div>
-                                )}
-                            </Div>
-                        </div>
+                                </Div>
+                            </div>
+                        )}
+                        {participantInfo.statuses.don && (
+                            <div className="profile2">
+                                <Div className=" profile__info2">
+                                    <Title className="section-header" level="2" weight="medium">
+                                        Твой собеседник на этой неделе
+                                    </Title>
+                                    {Boolean(Object.keys(participantInfo.current).length) ? (
+                                        <div>
+                                            <Card>
+                                                <Div>
+                                                    <div className="d-flex align-center justify-space-between Card__header">
+                                                        <div className="d-flex align-center ">
+                                                            <Icon16UserOutline fill="#4CD964" width={16} height={16} />{' '}
+                                                            <Caption
+                                                                level="2"
+                                                                weight="regular"
+                                                                style={{ opacity: 0.7, marginLeft: 8 }}
+                                                            >
+                                                                СОБЕСЕДНИК
+                                                            </Caption>
+                                                        </div>
 
+                                                        <Icon24ReportOutline
+                                                            width={20}
+                                                            height={20}
+                                                            onClick={() => router.pushPopup(POPOUT_CONFIRM)}
+                                                            className="complain-icon clickable"
+                                                        />
+                                                    </div>
+                                                    <div className="d-row ">
+                                                        <img
+                                                            className="profile__photo profile__photo--participant2"
+                                                            src={participantInfo.current.info.photo_100}
+                                                        />
+                                                        <div>
+                                                            <Title
+                                                                className="profile__participant-name"
+                                                                level="1"
+                                                                weight="heavy"
+                                                            >
+                                                                {participantInfo.current.info.first_name}
+                                                                <br />
+                                                                {participantInfo.current.info.last_name}
+                                                            </Title>
+                                                        </div>
+                                                    </div>
+                                                </Div>
+                                                <SimpleCell disabled multiline>
+                                                    <InfoRow header="О себе">
+                                                        {' '}
+                                                        {participantInfo.current.info.about}
+                                                    </InfoRow>
+                                                </SimpleCell>
+
+                                                {participantInfo.current.info?.city && (
+                                                    <SimpleCell disabled>
+                                                        <InfoRow header="Город">
+                                                            {participantInfo.current.info.city.title}
+                                                        </InfoRow>
+                                                    </SimpleCell>
+                                                )}
+                                                {participantInfo.current.info?.interests && (
+                                                    <SimpleCell disabled multiline>
+                                                        <InfoRow header="Интересы">
+                                                            {participantInfo.current.info.interests.length > 0
+                                                                ? participantInfo.current.info.interests
+                                                                      .map((i) => this.props.defaultInterests[i])
+                                                                      .toString()
+                                                                      .split(',')
+                                                                      .join(', ')
+                                                                : 'Собеседник не указал свои интересы'}
+                                                        </InfoRow>
+                                                    </SimpleCell>
+                                                )}
+                                                <SimpleCell multiline disabled>
+                                                    <InfoRow header="Что можно спросить">
+                                                        <div className="d-row">
+                                                            <div className="flex-grow-1">
+                                                                {this.state.ideas[this.state.random]}
+                                                            </div>
+                                                            <div className="clickable" onClick={this.getRandom}>
+                                                                <Icon28RefreshOutline
+                                                                    width={24}
+                                                                    height={24}
+                                                                    style={{ marginLeft: 8 }}
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    </InfoRow>
+                                                </SimpleCell>
+                                                <Div>
+                                                    <Link
+                                                        target="_blank"
+                                                        href={`https://vk.com/im?sel=${participantInfo.current.info.id}`}
+                                                    >
+                                                        <Button
+                                                            before={<Icon24MessageOutline />}
+                                                            mode="secondary"
+                                                            stretched
+                                                            size="l"
+                                                        >
+                                                            <div className="d-row align-center">Написать</div>
+                                                        </Button>
+                                                    </Link>
+                                                </Div>
+                                            </Card>
+                                        </div>
+                                    ) : (
+                                        <div>
+                                            <Card>
+                                                <Div>
+                                                    <div className="d-flex align-center justify-space-between Card__header">
+                                                        <div className="d-flex align-center ">
+                                                            <Icon16UserOutline fill="#4CD964" width={16} height={16} />{' '}
+                                                            <Caption
+                                                                level="2"
+                                                                weight="regular"
+                                                                style={{ opacity: 0.7, marginLeft: 8 }}
+                                                            >
+                                                                ИНФОРМАЦИЯ
+                                                            </Caption>
+                                                        </div>
+                                                    </div>
+                                                    <div className="d-col justify-center align-center">
+                                                        <img className="emoji-placeholder" src={donut} />
+                                                        <Caption
+                                                            level="1"
+                                                            className="text-center"
+                                                            weight="regular"
+                                                            style={{ opacity: 0.7 }}
+                                                        >
+                                                            Ты участник Random Coffee! Следующее распределение
+                                                            участников произойдет в понедельник, не забудь посмотреть,
+                                                            кто твой собеседник. А пока можешь поизучать материалы в
+                                                            группе
+                                                        </Caption>
+                                                        <Button
+                                                            style={{ margin: '16px 0 8px 0' }}
+                                                            href="https://vk.com/randomcoffee"
+                                                            target="_blank"
+                                                        >
+                                                            Перейти в группу
+                                                        </Button>
+                                                    </div>
+                                                </Div>
+                                            </Card>
+                                        </div>
+                                    )}
+                                </Div>
+                            </div>
+                        )}
                         <Div>
                             <Title className="section-header" level="2" weight="medium">
                                 Статистика
@@ -355,11 +395,7 @@ class Home extends React.Component {
                                                     {participantInfo.history.length}
                                                 </Title>
                                                 <Caption level="2" weight="regular" style={{ opacity: 0.7 }}>
-                                                    {this.declOfNum(participantInfo.history.length, [
-                                                        'знакомство',
-                                                        'знакомства',
-                                                        'знакомств',
-                                                    ])}
+                                                    знакомств
                                                 </Caption>
                                             </Fragment>
                                         ) : (
@@ -377,6 +413,7 @@ class Home extends React.Component {
                                 <Card className="history-card">
                                     <Div>
                                         <div className="d-flex align-center">
+                                            {' '}
                                             <Icon20UsersOutline fill="#4CD964" width={16} height={16} />{' '}
                                             <Caption level="2" weight="regular" style={{ opacity: 0.7, marginLeft: 8 }}>
                                                 СООБЩЕСТВО
@@ -384,14 +421,11 @@ class Home extends React.Component {
                                         </div>
 
                                         <Title className="history__count" weight="medium" level="1">
-                                            {participantInfo.metrics.members}
+                                            {' '}
+                                            {participantInfo.metrics.donuts}
                                         </Title>
                                         <Caption level="2" weight="regular" style={{ opacity: 0.7 }}>
-                                            {this.declOfNum(participantInfo.metrics.members, [
-                                                'участник',
-                                                'участника',
-                                                'участников',
-                                            ])}
+                                            участников
                                         </Caption>
                                     </Div>
                                 </Card>
@@ -418,7 +452,7 @@ class Home extends React.Component {
                                         </div>
 
                                         <Text className="history__count history-action" weight="medium">
-                                            В нашей группе ты найдешь советы по эффективному нетворкингу.
+                                            В нашей группе мы регулярно публикуем посты с советами по нетворкингу.
                                         </Text>
                                         <Link target="_blank" href="https://vk.com/randomcoffee">
                                             <Button size="s" stretched className="action-button">
@@ -509,7 +543,6 @@ const mapStateToProps = (state) => {
         snackbar: state.data.snackbar,
         notifications: state.data.notifications,
         defaultInterests: state.data.defaultInterests,
-        add: state.data.add,
     };
 };
 

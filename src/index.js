@@ -8,22 +8,19 @@ import { composeWithDevTools } from 'redux-devtools-extension';
 import rootReducer from './store/reducers.js';
 import App from './App';
 import { RouterContext } from '@happysanta/router';
-import { router, PAGE_MAIN } from './router/routers.js';
+import { router } from './router/routers.js';
 
 export const store = createStore(rootReducer, composeWithDevTools(applyMiddleware(thunk)));
 
 initApp();
 
 isIntroViewed();
-
 ReactDOM.render(
-	<RouterContext.Provider value={router}>
-		<Provider store={store}>
-			<App />
-		</Provider>
-	</RouterContext.Provider>,
-	document.getElementById('root'),
+    <RouterContext.Provider value={router}>
+        <Provider store={store}>
+            <App />
+        </Provider>
+    </RouterContext.Provider>,
+    document.getElementById('root'),
 );
-if (process.env.NODE_ENV === 'development') {
-	import('./eruda').then(({ default: eruda }) => {}); //runtime download
-}
+if (process.env.NODE_ENV === 'development') import('./eruda').then(({ default: eruda }) => {});

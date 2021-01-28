@@ -44,10 +44,13 @@
     z-index: -1;
 }
 
-.profile__info2 {
-    /* width: 100%; */
-    padding: inherit;
-    width: 100%;
+.emoji-placeholder {
+    width: 70px;
+    margin: 0 auto 16px auto;
+}
+
+.text-center {
+    text-align: center;
 }
 
 .pd-right-unset {
@@ -57,6 +60,9 @@
     margin-bottom: 16px;
     line-height: 1.4em;
     font-size: 1.6em;
+}
+.card-header__action {
+    opacity: 0.7;
 }
 
 .profile__participant-name {
@@ -140,20 +146,27 @@
     grid-template-columns: 1fr 1fr;
 }
 
-.history {
+.history-card {
     width: 100%;
+}
+
+.transition {
+    transition: 0.3s;
+    background: linear-gradient(126deg, rgba(255, 80, 97, 1) 0%, rgba(255, 52, 72, 1) 100%);
 }
 
 .news-grid {
     display: grid;
     gap: 8px;
+
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    grid-template-rows: repeat(2, 270px);
+    grid-template-rows: repeat(auto-fit, 270px);
 }
 .news-card {
     display: flex;
     align-items: flex-end;
     height: 100%;
+    min-height: 270px;
     background-size: cover !important;
     background-position: center top !important;
     margin-bottom: 8px;
@@ -168,18 +181,42 @@
     width: 100% !important;
 }
 
+.history-card .Card__in {
+    height: 100% !important;
+}
+
 .action-button {
     margin-top: 16px;
-    color: white;
+    color: #000;
     font-size: 12px;
-    line-height: 1.7em;
+    line-height: 2em;
+    background-color: #fff;
+    flex-grow: 0;
+}
+
+.fix-height {
+    height: 100% !important;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+}
+
+.button--disabled {
+    pointer-events: none;
+}
+
+body[scheme='space_gray'] .action-button {
     background-color: #000;
+    color: white;
 }
 
 .active {
+    transition: background 0.3s;
     background: linear-gradient(126deg, rgba(81, 205, 81, 1) 0%, rgba(44, 172, 44, 1) 100%);
 }
 .disabled {
+    transition: background 0.3s;
     background: linear-gradient(126deg, rgba(255, 80, 97, 1) 0%, rgba(255, 52, 72, 1) 100%);
 }
 
@@ -189,6 +226,10 @@
 
 .history-action {
     color: white;
+}
+
+.section-header {
+    margin-bottom: 12px;
 }
 
 @media (max-height: 600px) {
