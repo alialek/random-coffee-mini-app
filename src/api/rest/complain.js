@@ -1,5 +1,5 @@
-import axios from '../interceptor';
+import axios from "../interceptor";
 
-export const complain = (id) => {
-    return axios.post('complain', { id });
+export const complain = (id, text) => {
+  return axios.post("complain", { id, text });
 };

@@ -1,0 +1,24 @@
+.stepper-num {
+  width: 25px;
+  height: 25px;
+  background-color: white;
+  border-radius: 100px;
+  flex-shrink: 0;
+}
+
+.stepper-num div {
+  text-align: center;
+  height: 100%;
+  font-size: 17px;
+  font-weight: 700;
+  color: rgba(0, 0, 0, 0.3);
+}
+
+.stepper-text {
+  color: white;
+  margin-left: 8px;
+}
+
+.stepper {
+  margin-top: 8px;
+}
