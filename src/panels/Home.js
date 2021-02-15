@@ -42,6 +42,7 @@ import {
   Icon28CheckCircleFill,
   Icon28ChevronUpOutline,
   Icon16Comment,
+  Icon16Flash,
 } from "@vkontakte/icons";
 import Icon24HistoryBackwardOutline from "@vkontakte/icons/dist/24/history_backward_outline";
 import Icon24ReportOutline from "@vkontakte/icons/dist/24/report_outline";
@@ -328,9 +329,9 @@ class Home extends React.Component {
                         </Link>
                       </Div>
                     </Card>
-                    <Card style={{ marginTop: 16 }}>
-                      {this.state.isFeedbackAvailable &&
-                        !participantInfo.current?.feedback && (
+                    {this.state.isFeedbackAvailable &&
+                      !participantInfo.current?.feedback && (
+                        <Card style={{ marginTop: 16 }}>
                           <Div>
                             <div className="d-flex align-center justify-space-between Card__header">
                               <div className="d-flex align-center ">
@@ -362,8 +363,8 @@ class Home extends React.Component {
                               Отправить
                             </Button>
                           </Div>
-                        )}
-                    </Card>
+                      </Card>
+                    )}
                   </div>
                 ) : (
                   <div>
@@ -438,7 +439,7 @@ class Home extends React.Component {
                 )}
               </Div>
             </div>
-            {/* <Div>
+            {/*}<Div>
               <Title className="section-header" level="2" weight="medium">
                 Улучшить алгоритм
               </Title>
@@ -447,7 +448,7 @@ class Home extends React.Component {
                 <Div className="fix-height">
                   <div className="d-flex align-center">
                     {" "}
-                    <Icon20UsersOutline
+                    <Icon16Flash
                       fill="#fff"
                       width={16}
                       height={16}
@@ -461,7 +462,7 @@ class Home extends React.Component {
                     </Caption>
                   </div>
                   <div className="d-flex stepper">
-                    {true ? (
+                    {false ? (
                       <Icon20CheckCircleFillGreen />
                     ) : (
                       <div className="stepper-num">
@@ -475,15 +476,9 @@ class Home extends React.Component {
                       </Text>
                     </div>
                   </div>
-
-                  <Link target="_blank" href="https://vk.com/randomcoffee">
-                    <Button size="s" stretched className="action-button">
-                      Перейти в группу
-                    </Button>
-                  </Link>
                 </Div>
               </Card>
-            </Div> */}
+            </Div>*/}
 
             <Div>
               <Title className="section-header" level="2" weight="medium">
@@ -592,7 +587,7 @@ class Home extends React.Component {
                 </Card>
               </div>
             </Div>
-            <Div>
+            {/* <Div>
               <Title className="section-header" level="2" weight="medium">
                 Полезное
               </Title>
@@ -677,7 +672,7 @@ class Home extends React.Component {
                   </Div>
                 </Card>
               </div>
-            </Div>
+            </Div> */}
 
             <Div>
               <Title level="2" className="section-header" weight="medium">
