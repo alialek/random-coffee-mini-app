@@ -49,6 +49,7 @@ class HistoryPage extends Component {
                     </Link>
                 ))}{' '}
                 <Footer>Всего встреч: {participantInfo.history.length}</Footer>
+                <div style={{ height: 5 }} />
             </ModalPage>
         );
     }

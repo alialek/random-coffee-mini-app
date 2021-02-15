@@ -23,4 +23,4 @@ ReactDOM.render(
     </RouterContext.Provider>,
     document.getElementById('root'),
 );
-if (process.env.NODE_ENV === 'development') import('./eruda').then(({ default: eruda }) => {});
+// if (process.env.NODE_ENV === 'development') import('./eruda').then(({ default: eruda }) => {});
