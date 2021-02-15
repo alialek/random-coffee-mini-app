@@ -41,6 +41,7 @@ import {
   Icon24GearOutline,
   Icon28CheckCircleFill,
   Icon28ChevronUpOutline,
+  Icon16Comment,
 } from "@vkontakte/icons";
 import Icon24HistoryBackwardOutline from "@vkontakte/icons/dist/24/history_backward_outline";
 import Icon24ReportOutline from "@vkontakte/icons/dist/24/report_outline";
@@ -60,6 +61,7 @@ class Home extends React.Component {
       disabled: false,
       appStarted: true,
       feedback: null,
+      isFeedbackAvailable: [0, 5, 6].includes(new Date().getDay()),
       random: 0,
       ideas: [
         "Как ты добился(ась) призвания?",
@@ -115,11 +117,11 @@ class Home extends React.Component {
     this.setState({ appStarted: false });
   };
 
-  isFeedbackAvailable = () => {
-    return [0, 5, 6].includes(new Date().getDay());
+  setFeedbackAvailable = (type) => {
+    this.setState({ isFeedbackAvailable: type });
   };
 
-  setFeedback(e) {
+  setFeedback = (e) => {
     this.setState({ feedback: e.target.value });
   }
 
@@ -176,8 +178,19 @@ class Home extends React.Component {
       () => this.setState({ disabled: false }),
     );
   };
-  sendFeedback() {
-    feedback(this.state.feedback).then((res) => {});
+  sendFeedback = () => {
+    if (this.state.feedback) {
+      feedback(this.state.feedback).then((res) => {
+        if (res.data.status === true) {
+          this.setFeedbackAvailable(false);
+          this.openSnackBar('Спасибо за отзыв!', <Icon28CheckCircleFill width={24} height={24} />);
+        } else {
+          this.openSnackBar('Что-то пошло не так, попробуйте еще раз', <Icon16ErrorCircleFill width={24} height={24} />);
+        }
+      });
+    } else {
+      this.openSnackBar('Введите текст отзыва', <Icon16ErrorCircleFill width={24} height={24} />);
+    }
   }
   componentDidMount() {
     this.getRandom(false);
@@ -211,7 +224,7 @@ class Home extends React.Component {
                 <Title className="section-header" level="2" weight="medium">
                   Твой собеседник на этой неделе
                 </Title>
-                {Boolean(Object.keys(participantInfo.current).length) ? (
+                {Boolean(Object.keys(participantInfo.current).length) && notifications ? (
                   <div>
                     <Card>
                       <Div>
@@ -316,24 +329,39 @@ class Home extends React.Component {
                       </Div>
                     </Card>
                     <Card style={{ marginTop: 16 }}>
-                      {this.isFeedbackAvailable() &&
+                      {this.state.isFeedbackAvailable &&
                         !participantInfo.current?.feedback && (
-                          <SimpleCell multiline disabled>
-                            <InfoRow header="Оставь отзыв о собеседнике">
-                              <Textarea
-                                onChange={this.setFeedback}
-                                placeholder="Удалось ли тебе поговорить с ним? Какие впечатления?"
-                              ></Textarea>
-                              <Button
-                                style={{ marginTop: 8 }}
-                                mode="secondary"
-                                size="l"
-                                onClick={this.sendFeedback}
-                              >
-                                Отправить
-                              </Button>
-                            </InfoRow>
-                          </SimpleCell>
+                          <Div>
+                            <div className="d-flex align-center justify-space-between Card__header">
+                              <div className="d-flex align-center ">
+                                <Icon16Comment
+                                  fill="#2787f5"
+                                  width={16}
+                                  height={16}
+                                />{" "}
+                                <Caption
+                                  level="2"
+                                  weight="regular"
+                                  style={{ opacity: 0.7, marginLeft: 8 }}
+                                >
+                                  ОТЗЫВ О СОБЕСЕДНИКЕ
+                                </Caption>
+                              </div>
+                            </div>
+                            <Textarea
+                              onChange={this.setFeedback}
+                              placeholder="Удалось ли тебе поговорить с ним? Какие впечатления?"
+                            ></Textarea>
+                            <Button
+                              style={{ marginTop: 8 }}
+                              mode="secondary"
+                              size="l"
+                              stretched
+                              onClick={this.sendFeedback}
+                            >
+                              Отправить
+                            </Button>
+                          </Div>
                         )}
                     </Card>
                   </div>
@@ -362,11 +390,11 @@ class Home extends React.Component {
                           <Caption
                             level="1"
                             weight="regular"
-                            style={{ opacity: 0.7 }}
+                            style={{ opacity: 0.7, textAlign: 'center' }}
                           >
                             {notifications && (
                               <>
-                                Ты участник Random Coffee! <br /> Возвращайся в
+                                Ты участник Random Coffee! <br /> <br /> Возвращайся в
                                 следующий понедельник, чтобы узнать, кто твой
                                 собеседник. А пока ознакомься с материалами по
                                 нетворкингу в группе.
@@ -377,7 +405,7 @@ class Home extends React.Component {
                                 Чтобы принять участие в Random Coffee,
                                 необходимо включить уведомления. Это нужно для
                                 оповещения участников о новых собеседниках.
-                                <br /> Если захотите прекратить участие в
+                                <br /> <br /> Если захотите прекратить участие в
                                 нетворкинге - просто отключите уведомления.
                               </>
                             )}
