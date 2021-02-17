@@ -20,5 +20,12 @@
 }
 
 .stepper {
+  margin-top: 16px;
+}
+
+.description-action {
   margin-top: 8px;
+}
+.description-action .Button:nth-child(2n) {
+  margin-left: 24px;
 }

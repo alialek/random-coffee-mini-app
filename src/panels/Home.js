@@ -23,6 +23,7 @@ import {
   Caption,
   Subhead,
   Textarea,
+  ScreenSpinner,
 } from "@vkontakte/vkui";
 import { getProfile, setSnackbar } from "../store/data/actions";
 import { withRouter } from "@happysanta/router";
@@ -54,6 +55,7 @@ import { setAbout, setParticipantInfo } from "./../store/data/actions";
 import { tapticSelectNotification } from "./../vk/index";
 import Icon16ErrorCircleFill from "@vkontakte/icons/dist/16/error_circle_fill";
 import { feedback } from "./../api/rest/feedback";
+import { type } from "../api";
 class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -64,6 +66,48 @@ class Home extends React.Component {
       feedback: null,
       isFeedbackAvailable: [0, 5, 6].includes(new Date().getDay()),
       random: 0,
+      instructions: [
+        {
+          id: 1,
+          title: "Вступить в группу",
+          description: (
+            <div className="description-action">
+              <Button>Подписаться</Button>
+            </div>
+          ),
+          isDone: (user) => user.statuses.subscriber,
+        },
+        {
+          id: 2,
+          title: "Тип участия",
+          description: (
+            <div className="d-row description-action">
+              <Button onClick={() => this.sendType("networking")}>
+                Нетворкинг
+              </Button>
+              <Button onClick={() => this.sendType("dating")}>Свидания</Button>
+            </div>
+          ),
+          isDone: (user) => user.type
+        {
+          id: 3,
+          title: "Оставлен отзыв",
+          description: "Раз в неделю делитесь фидбеком о прошедшем знакомстве",
+          isDone: (user) => user.first_feedback,
+        },
+        {
+          id: 4,
+          title: "Заполненное описание",
+          description: "Так собеседникам будет проще узнать вас",
+          isDone: (user) => user.about,
+        },
+        {
+          id: 5,
+          title: "Подписка VK Donut",
+          description: "Оформите VK Donut за 100р./мес в нашей группе",
+          isDone: (user) => user.statuses.don,
+        },
+      ],
       ideas: [
         "Как ты добился(ась) призвания?",
         "С чего начать погружение в твою сферу деятельности?",
@@ -102,6 +146,26 @@ class Home extends React.Component {
     };
   }
 
+  sendType(data) {
+    type(data)
+      .then(() => {
+        this.openSnackBar(
+          "Выбор сделан!",
+          <Icon28CheckCircleFill width={24} height={24} />,
+        );
+        this.props.setParticipantInfo({
+          ...this.props.participantInfo,
+          type: data,
+        });
+      })
+      .catch((err) => {
+        this.openSnackBar(
+          "Что-то пошло не так, попробуйте еще раз",
+          <Icon16ErrorCircleFill width={24} height={24} />,
+        );
+      });
+  }
+
   declOfNum(number, titles) {
     const cases = [2, 0, 1, 1, 1, 2];
     return titles[
@@ -124,7 +188,7 @@ class Home extends React.Component {
 
   setFeedback = (e) => {
     this.setState({ feedback: e.target.value });
-  }
+  };
 
   openSnackBar(text, icon) {
     if (this.state.snackbar) return;
@@ -184,15 +248,24 @@ class Home extends React.Component {
       feedback(this.state.feedback).then((res) => {
         if (res.data.status === true) {
           this.setFeedbackAvailable(false);
-          this.openSnackBar('Спасибо за отзыв!', <Icon28CheckCircleFill width={24} height={24} />);
+          this.openSnackBar(
+            "Спасибо за отзыв!",
+            <Icon28CheckCircleFill width={24} height={24} />,
+          );
         } else {
-          this.openSnackBar('Что-то пошло не так, попробуйте еще раз', <Icon16ErrorCircleFill width={24} height={24} />);
+          this.openSnackBar(
+            "Что-то пошло не так, попробуйте еще раз",
+            <Icon16ErrorCircleFill width={24} height={24} />,
+          );
         }
       });
     } else {
-      this.openSnackBar('Введите текст отзыва', <Icon16ErrorCircleFill width={24} height={24} />);
+      this.openSnackBar(
+        "Введите текст отзыва",
+        <Icon16ErrorCircleFill width={24} height={24} />,
+      );
     }
-  }
+  };
   componentDidMount() {
     this.getRandom(false);
   }
@@ -225,7 +298,8 @@ class Home extends React.Component {
                 <Title className="section-header" level="2" weight="medium">
                   Твой собеседник на этой неделе
                 </Title>
-                {Boolean(Object.keys(participantInfo.current).length) && notifications ? (
+                {Boolean(Object.keys(participantInfo.current).length) &&
+                notifications ? (
                   <div>
                     <Card>
                       <Div>
@@ -363,8 +437,8 @@ class Home extends React.Component {
                               Отправить
                             </Button>
                           </Div>
-                      </Card>
-                    )}
+                        </Card>
+                      )}
                   </div>
                 ) : (
                   <div>
@@ -391,14 +465,14 @@ class Home extends React.Component {
                           <Caption
                             level="1"
                             weight="regular"
-                            style={{ opacity: 0.7, textAlign: 'center' }}
+                            style={{ opacity: 0.7, textAlign: "center" }}
                           >
                             {notifications && (
                               <>
-                                Ты участник Random Coffee! <br /> <br /> Возвращайся в
-                                следующий понедельник, чтобы узнать, кто твой
-                                собеседник. А пока ознакомься с материалами по
-                                нетворкингу в группе.
+                                Ты участник Random Coffee! <br /> <br />{" "}
+                                Возвращайся в следующий понедельник, чтобы
+                                узнать, кто твой собеседник. А пока ознакомься с
+                                материалами по нетворкингу в группе.
                               </>
                             )}
                             {!notifications && (
@@ -439,20 +513,16 @@ class Home extends React.Component {
                 )}
               </Div>
             </div>
-            {/*}<Div>
+            <Div>
               <Title className="section-header" level="2" weight="medium">
                 Улучшить алгоритм
               </Title>
 
-              <Card className="history-card standard">
+              <Card className="history-card">
                 <Div className="fix-height">
                   <div className="d-flex align-center">
                     {" "}
-                    <Icon16Flash
-                      fill="#fff"
-                      width={16}
-                      height={16}
-                    />{" "}
+                    <Icon16Flash fill="#fff" width={16} height={16} />{" "}
                     <Caption
                       level="2"
                       weight="regular"
@@ -461,24 +531,29 @@ class Home extends React.Component {
                       ИНСТРУКЦИЯ
                     </Caption>
                   </div>
-                  <div className="d-flex stepper">
-                    {false ? (
-                      <Icon20CheckCircleFillGreen />
-                    ) : (
-                      <div className="stepper-num">
-                        <div>1</div>
+
+                  {this.state.instructions.map((step) => (
+                    <div key={step.id} className="d-flex stepper">
+                      {step.isDone(participantInfo) ? (
+                        <Icon20CheckCircleFillGreen />
+                      ) : (
+                        <div className="stepper-num">
+                          <div>{step.id}</div>
+                        </div>
+                      )}
+                      <div className="stepper-text">
+                        <Text weight="semibold">{step.title}</Text>
+                        <Caption level="1">
+                          {step.isDone(participantInfo)
+                            ? "Выполнено"
+                            : step.description}
+                        </Caption>
                       </div>
-                    )}
-                    <div className="stepper-text">
-                      <Text weight="semibold">
-                        Вступить в группу Вступить в группу Вступить в группу
-                        Вступить в группу Вступить в группу
-                      </Text>
                     </div>
-                  </div>
+                  ))}
                 </Div>
               </Card>
-            </Div>*/}
+            </Div>
 
             <Div>
               <Title className="section-header" level="2" weight="medium">

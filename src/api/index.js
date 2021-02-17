@@ -5,6 +5,7 @@ import { updateNotifications } from "./rest/notifications";
 import { complain } from "./rest/complain";
 import { shuffle } from "./rest/shuffle";
 import { feedback } from "./rest/feedback";
+import { type } from "./rest/type";
 
 export {
   auth,
@@ -12,6 +13,7 @@ export {
   updateAbout,
   user,
   feedback,
+  type,
   updateNotifications,
   complain,
   shuffle,

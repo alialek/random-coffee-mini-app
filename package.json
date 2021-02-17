@@ -26,7 +26,7 @@
   "dependencies": {
     "@happysanta/router": "^0.1.9",
     "@vkontakte/eslint-config": "^2.5.0",
-    "@vkontakte/icons": "^1.55.0",
+    "@vkontakte/icons": "^1.77.0",
     "@vkontakte/vk-bridge": "^2.3.0",
     "@vkontakte/vk-mini-apps-api": "^0.6.5",
     "@vkontakte/vk-miniapps-deploy": "0.0.17",
