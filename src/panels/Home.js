@@ -23,7 +23,6 @@ import {
   Caption,
   Subhead,
   Textarea,
-  ScreenSpinner,
 } from "@vkontakte/vkui";
 import { getProfile, setSnackbar } from "../store/data/actions";
 import { withRouter } from "@happysanta/router";
@@ -48,14 +47,14 @@ import {
 import Icon24HistoryBackwardOutline from "@vkontakte/icons/dist/24/history_backward_outline";
 import Icon24ReportOutline from "@vkontakte/icons/dist/24/report_outline";
 import coffee from "../img/coffee.png";
-import { shuffle } from "./../api/rest/shuffle";
-import { user } from "./../api/rest/user";
 import { getAdd, notifications } from "../vk";
-import { setAbout, setParticipantInfo } from "./../store/data/actions";
+import { setAbout, getParticipantInfo } from "./../store/data/actions";
 import { tapticSelectNotification } from "./../vk/index";
 import Icon16ErrorCircleFill from "@vkontakte/icons/dist/16/error_circle_fill";
 import { feedback } from "./../api/rest/feedback";
 import { type } from "../api";
+import { MemoizedCard } from "./../components/IosCard";
+import showSnackbar from "./../services/generateSnackbar";
 class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -79,7 +78,7 @@ class Home extends React.Component {
         },
         {
           id: 2,
-          title: "Тип участия",
+          title: "Уточнить цель участия в Random Coffee",
           description: (
             <div className="d-row description-action">
               <Button onClick={() => this.sendType("networking")}>
@@ -88,23 +87,37 @@ class Home extends React.Component {
               <Button onClick={() => this.sendType("dating")}>Свидания</Button>
             </div>
           ),
-          isDone: (user) => user.type
+          isDone(user) {
+            return user.type;
+          },
+        },
         {
           id: 3,
-          title: "Оставлен отзыв",
+          title: "Оставить первый отзыв",
           description: "Раз в неделю делитесь фидбеком о прошедшем знакомстве",
-          isDone: (user) => user.first_feedback,
+          isDone: (user) => user.params.first_feedback,
         },
         {
           id: 4,
-          title: "Заполненное описание",
+          title: "Заполнить описание",
           description: "Так собеседникам будет проще узнать вас",
           isDone: (user) => user.about,
         },
         {
           id: 5,
-          title: "Подписка VK Donut",
-          description: "Оформите VK Donut за 100р./мес в нашей группе",
+          title: "Подключить VK Donut",
+          description: (
+            <div>
+              <div>Вручную подберем лучших собеседников за 100р./мес</div>
+              <Button
+                style={{ margin: "8px 0 0 0" }}
+                href="https://vk.com/randomcoffee"
+                target="_blank"
+              >
+                Перейти в группу
+              </Button>
+            </div>
+          ),
           isDone: (user) => user.statuses.don,
         },
       ],
@@ -114,14 +127,13 @@ class Home extends React.Component {
         "Кем ты хотел(а) стать в детстве?",
         "Какой твой любимый сериал?",
         "Какой фильм тебя больше всего мотивирует?",
-        "Какие книги ты помжешь порекомендовать почитать?",
+        "Какие книги ты можешь порекомендовать почитать?",
         "Ты занимаешься спортом?",
         "Кто твой любимый персонаж из фильмов?",
         "Как думаешь, необходимо ли высшее образование для успеха в жизни?",
         "Что для тебя значит добиться успеха?",
         "Чай или кофе?",
         "Чем ты занимаешься в свободное время?",
-        "Звездные войны или звездный путь?",
         "Для чего ты участвуешь в Random Coffee?",
         "Можешь ли ты помочь мне со следующим проектом?",
         "Если бы открыли границы, куда бы ты поехал(а) в первую очередь?",
@@ -149,20 +161,27 @@ class Home extends React.Component {
   sendType(data) {
     type(data)
       .then(() => {
-        this.openSnackBar(
-          "Выбор сделан!",
-          <Icon28CheckCircleFill width={24} height={24} />,
-        );
+        this.setState({
+          snackbar: showSnackbar(
+            <Icon28CheckCircleFill width={24} height={24} />,
+            "Выбор сделан!",
+            () => this.setState({ snackbar: null }),
+          ),
+        });
+
         this.props.setParticipantInfo({
           ...this.props.participantInfo,
           type: data,
         });
       })
-      .catch((err) => {
-        this.openSnackBar(
-          "Что-то пошло не так, попробуйте еще раз",
-          <Icon16ErrorCircleFill width={24} height={24} />,
-        );
+      .catch(() => {
+        this.setState({
+          snackbar: showSnackbar(
+            <Icon16ErrorCircleFill width={24} height={24} />,
+            "Что-то пошло не так, попробуйте еще раз",
+            () => this.setState({ snackbar: null }),
+          ),
+        });
       });
   }
 
@@ -190,56 +209,23 @@ class Home extends React.Component {
     this.setState({ feedback: e.target.value });
   };
 
-  openSnackBar(text, icon) {
-    if (this.state.snackbar) return;
-    this.setState({
-      snackbar: (
-        <Snackbar
-          layout="vertical"
-          action="Закрыть"
-          onActionClick={() => this.setState({ snackbar: null })}
-          onClose={() => this.setState({ snackbar: null })}
-          before={icon}
-        >
-          {text}
-        </Snackbar>
-      ),
-    });
-  }
-  shuffle = () => {
-    shuffle().then(() => {
-      user().then((res) => {
-        this.props.setAbout(res.data.about);
-        this.props.setParticipantInfo({
-          history: res.data.history,
-          current: res.data.current,
-        });
-      });
-    });
-  };
-  snackNotifications = (status) => (
-    <Snackbar
-      action="Закрыть"
-      onActionClick={() => this.props.setSnackbar(null)}
-      onClose={() => this.props.setSnackbar(null)}
-      before={
-        status !== "error" ? (
-          <Icon28CheckCircleFill width={24} height={24} />
-        ) : (
-          <Icon16ErrorCircleFill width={24} height={24} />
-        )
-      }
-    >
-      {status === "enabled" && "Уведомления включены"}
-      {status === "disabled" && "Уведомления отключены"}
-      {status === "error" && "Доступ не получен"}
-    </Snackbar>
-  );
-
   changeNotifications = () => {
     this.setState({ disabled: true });
     notifications(
-      (status) => this.snackNotifications(status),
+      (status) =>
+        showSnackbar(
+          status !== "error" ? (
+            <Icon28CheckCircleFill width={24} height={24} />
+          ) : (
+            <Icon16ErrorCircleFill width={24} height={24} />
+          ),
+          status === "enabled"
+            ? "Уведомления включены"
+            : status === "disabled"
+            ? "Уведомления отключены"
+            : "Доступ не получен",
+          () => this.props.setSnackbar(null),
+        ),
       () => this.setState({ disabled: false }),
     );
   };
@@ -248,22 +234,32 @@ class Home extends React.Component {
       feedback(this.state.feedback).then((res) => {
         if (res.data.status === true) {
           this.setFeedbackAvailable(false);
-          this.openSnackBar(
-            "Спасибо за отзыв!",
-            <Icon28CheckCircleFill width={24} height={24} />,
-          );
+          this.setState({
+            snackbar: showSnackbar(
+              <Icon28CheckCircleFill width={24} height={24} />,
+              "Спасибо за отзыв!",
+              () => this.setState({ snackbar: null }),
+            ),
+          });
+          this.props.getParticipantInfo();
         } else {
-          this.openSnackBar(
-            "Что-то пошло не так, попробуйте еще раз",
-            <Icon16ErrorCircleFill width={24} height={24} />,
-          );
+          this.setState({
+            snackbar: showSnackbar(
+              <Icon16ErrorCircleFill width={24} height={24} />,
+              "Что-то пошло не так, попробуйте еще раз",
+              () => this.setState({ snackbar: null }),
+            ),
+          });
         }
       });
     } else {
-      this.openSnackBar(
-        "Введите текст отзыва",
-        <Icon16ErrorCircleFill width={24} height={24} />,
-      );
+      this.setState({
+        snackbar: showSnackbar(
+          <Icon16ErrorCircleFill width={24} height={24} />,
+          "Введите текст отзыва",
+          () => this.setState({ snackbar: null }),
+        ),
+      });
     }
   };
   componentDidMount() {
@@ -301,31 +297,25 @@ class Home extends React.Component {
                 {Boolean(Object.keys(participantInfo.current).length) &&
                 notifications ? (
                   <div>
-                    <Card>
-                      <Div>
-                        <div className="d-flex align-center justify-space-between Card__header">
-                          <div className="d-flex align-center ">
-                            <Icon16UserOutline
-                              fill="#4CD964"
-                              width={16}
-                              height={16}
-                            />{" "}
-                            <Caption
-                              level="2"
-                              weight="regular"
-                              style={{ opacity: 0.7, marginLeft: 8 }}
-                            >
-                              СОБЕСЕДНИК
-                            </Caption>
-                          </div>
-
-                          <Icon24ReportOutline
-                            width={20}
-                            height={20}
-                            onClick={() => router.pushPopup(POPOUT_CONFIRM)}
-                            className="complain-icon clickable"
-                          />
-                        </div>
+                    <MemoizedCard
+                      title="СОБЕСЕДНИК"
+                      leftIcon={
+                        <Icon16UserOutline
+                          fill="#4CD964"
+                          width={16}
+                          height={16}
+                        />
+                      }
+                      rightIcon={
+                        <Icon24ReportOutline
+                          width={20}
+                          height={20}
+                          onClick={() => router.pushPopup(POPOUT_CONFIRM)}
+                          className="complain-icon clickable"
+                        />
+                      }
+                    >
+                      <>
                         <div className="d-row ">
                           <img
                             className="profile__photo profile__photo--participant2"
@@ -343,51 +333,54 @@ class Home extends React.Component {
                             </Title>
                           </div>
                         </div>
-                      </Div>
-                      <SimpleCell disabled multiline>
-                        <InfoRow header="О себе">
-                          {" "}
-                          {participantInfo.current.info.about}
-                        </InfoRow>
-                      </SimpleCell>
 
-                      {participantInfo.current.info?.city && (
-                        <SimpleCell disabled>
-                          <InfoRow header="Город">
-                            {participantInfo.current.info.city.title}
-                          </InfoRow>
-                        </SimpleCell>
-                      )}
-                      {participantInfo.current.info?.interests && (
                         <SimpleCell disabled multiline>
-                          <InfoRow header="Интересы">
-                            {participantInfo.current.info.interests.length > 0
-                              ? participantInfo.current.info.interests
-                                  .map((i) => this.props.defaultInterests[i])
-                                  .toString()
-                                  .split(",")
-                                  .join(", ")
-                              : "Собеседник не указал свои интересы"}
+                          <InfoRow header="О себе">
+                            {" "}
+                            {participantInfo.current.info.about}
                           </InfoRow>
                         </SimpleCell>
-                      )}
-                      <SimpleCell multiline disabled>
-                        <InfoRow header="Что можно спросить">
-                          <div className="d-row">
-                            <div className="flex-grow-1">
-                              {this.state.ideas[this.state.random]}
+
+                        {participantInfo.current.info?.city && (
+                          <SimpleCell disabled>
+                            <InfoRow header="Город">
+                              {participantInfo.current.info.city.title}
+                            </InfoRow>
+                          </SimpleCell>
+                        )}
+                        {participantInfo.current.info?.interests && (
+                          <SimpleCell disabled multiline>
+                            <InfoRow header="Интересы">
+                              {participantInfo.current.info.interests.length > 0
+                                ? participantInfo.current.info.interests
+                                    .map((i) => this.props.defaultInterests[i])
+                                    .toString()
+                                    .split(",")
+                                    .join(", ")
+                                : "Собеседник не указал свои интересы"}
+                            </InfoRow>
+                          </SimpleCell>
+                        )}
+                        <SimpleCell multiline disabled>
+                          <InfoRow header="Что можно спросить">
+                            <div className="d-row">
+                              <div className="flex-grow-1">
+                                {this.state.ideas[this.state.random]}
+                              </div>
+                              <div
+                                className="clickable"
+                                onClick={this.getRandom}
+                              >
+                                <Icon28RefreshOutline
+                                  width={24}
+                                  height={24}
+                                  style={{ marginLeft: 8 }}
+                                />
+                              </div>
                             </div>
-                            <div className="clickable" onClick={this.getRandom}>
-                              <Icon28RefreshOutline
-                                width={24}
-                                height={24}
-                                style={{ marginLeft: 8 }}
-                              />
-                            </div>
-                          </div>
-                        </InfoRow>
-                      </SimpleCell>
-                      <Div>
+                          </InfoRow>
+                        </SimpleCell>
+
                         <Link
                           target="_blank"
                           href={`https://vk.com/im?sel=${participantInfo.current.info.id}`}
@@ -401,114 +394,98 @@ class Home extends React.Component {
                             <div className="d-row align-center">Написать</div>
                           </Button>
                         </Link>
-                      </Div>
-                    </Card>
+                      </>
+                    </MemoizedCard>
+
                     {this.state.isFeedbackAvailable &&
                       !participantInfo.current?.feedback && (
-                        <Card style={{ marginTop: 16 }}>
-                          <Div>
-                            <div className="d-flex align-center justify-space-between Card__header">
-                              <div className="d-flex align-center ">
-                                <Icon16Comment
-                                  fill="#2787f5"
-                                  width={16}
-                                  height={16}
-                                />{" "}
-                                <Caption
-                                  level="2"
-                                  weight="regular"
-                                  style={{ opacity: 0.7, marginLeft: 8 }}
-                                >
-                                  ОТЗЫВ О СОБЕСЕДНИКЕ
-                                </Caption>
-                              </div>
-                            </div>
-                            <Textarea
-                              onChange={this.setFeedback}
-                              placeholder="Удалось ли тебе поговорить с ним? Какие впечатления?"
-                            ></Textarea>
-                            <Button
-                              style={{ marginTop: 8 }}
-                              mode="secondary"
-                              size="l"
-                              stretched
-                              onClick={this.sendFeedback}
-                            >
-                              Отправить
-                            </Button>
-                          </Div>
-                        </Card>
+                        <MemoizedCard
+                          title="ОТЗЫВ О СОБЕСЕДНИКЕ"
+                          leftIcon={
+                            <Icon16Comment
+                              fill="#2787f5"
+                              width={16}
+                              height={16}
+                            />
+                          }
+                          className="feedback-card"
+                        >
+                          <Textarea
+                            onChange={this.setFeedback}
+                            placeholder="Удалось ли тебе поговорить с ним? Какие впечатления?"
+                          ></Textarea>
+                          <Button
+                            style={{ marginTop: 8 }}
+                            mode="secondary"
+                            size="l"
+                            stretched
+                            onClick={this.sendFeedback}
+                          >
+                            Отправить
+                          </Button>
+                        </MemoizedCard>
                       )}
                   </div>
                 ) : (
                   <div>
-                    <Card>
-                      <Div>
-                        <div className="d-flex align-center justify-space-between Card__header">
-                          <div className="d-flex align-center ">
-                            <Icon16UserOutline
-                              fill="#4CD964"
-                              width={16}
-                              height={16}
-                            />{" "}
-                            <Caption
-                              level="2"
-                              weight="regular"
-                              style={{ opacity: 0.7, marginLeft: 8 }}
-                            >
-                              ИНФОРМАЦИЯ
-                            </Caption>
-                          </div>
-                        </div>
-                        <div className="d-col justify-center align-center">
-                          <img className="emoji-placeholder" src={donut} />
-                          <Caption
-                            level="1"
-                            weight="regular"
-                            style={{ opacity: 0.7, textAlign: "center" }}
-                          >
-                            {notifications && (
-                              <>
-                                Ты участник Random Coffee! <br /> <br />{" "}
-                                Возвращайся в следующий понедельник, чтобы
-                                узнать, кто твой собеседник. А пока ознакомься с
-                                материалами по нетворкингу в группе.
-                              </>
-                            )}
-                            {!notifications && (
-                              <>
-                                Чтобы принять участие в Random Coffee,
-                                необходимо включить уведомления. Это нужно для
-                                оповещения участников о новых собеседниках.
-                                <br /> <br /> Если захотите прекратить участие в
-                                нетворкинге - просто отключите уведомления.
-                              </>
-                            )}
-                          </Caption>
-
+                    <MemoizedCard
+                      leftIcon={
+                        <Icon16UserOutline
+                          fill="#4CD964"
+                          width={16}
+                          height={16}
+                        />
+                      }
+                      title="ИНФОРМАЦИЯ"
+                    >
+                      <div className="d-col justify-center align-center">
+                        <img className="emoji-placeholder" src={donut} />
+                        <Caption
+                          level="1"
+                          weight="regular"
+                          style={{ opacity: 0.7, textAlign: "center" }}
+                        >
                           {notifications && (
-                            <Button
-                              style={{ margin: "16px 0 8px 0" }}
-                              href="https://vk.com/randomcoffee"
-                              target="_blank"
-                              mode="secondary"
-                            >
-                              Перейти в группу
-                            </Button>
+                            <>
+                              Ты участник Random Coffee! <br /> <br />{" "}
+                              Возвращайся в следующий понедельник, чтобы узнать,
+                              кто твой собеседник. А пока ознакомься с
+                              материалами по нетворкингу в группе.
+                            </>
                           )}
-
                           {!notifications && (
-                            <Button
-                              style={{ margin: "16px 0 8px 0" }}
-                              target="_blank"
-                              onClick={this.changeNotifications}
-                            >
-                              Включить уведомления
-                            </Button>
+                            <>
+                              Чтобы принять участие в Random Coffee, необходимо
+                              включить уведомления. Это нужно для оповещения
+                              участников о новых собеседниках.
+                              <br /> <br /> Если захотите прекратить участие в
+                              нетворкинге - просто отключите уведомления.
+                            </>
                           )}
-                        </div>
-                      </Div>
-                    </Card>
+                        </Caption>
+
+                        {notifications && (
+                          <Button
+                            style={{ margin: "16px 0 8px 0" }}
+                            href="https://vk.com/randomcoffee"
+                            target="_blank"
+                            mode="secondary"
+                          >
+                            Перейти в группу
+                          </Button>
+                        )}
+
+                        {!notifications && (
+                          <Button
+                            style={{ margin: "16px 0 8px 0" }}
+                            target="_blank"
+                            onClick={this.changeNotifications}
+                          >
+                            Включить уведомления
+                          </Button>
+                        )}
+                      </div>
+                    </MemoizedCard>
                   </div>
                 )}
               </Div>
@@ -518,41 +495,31 @@ class Home extends React.Component {
                 Улучшить алгоритм
               </Title>
 
-              <Card className="history-card">
-                <Div className="fix-height">
-                  <div className="d-flex align-center">
-                    {" "}
-                    <Icon16Flash fill="#fff" width={16} height={16} />{" "}
-                    <Caption
-                      level="2"
-                      weight="regular"
-                      style={{ color: "white", marginLeft: 8 }}
-                    >
-                      ИНСТРУКЦИЯ
-                    </Caption>
-                  </div>
-
-                  {this.state.instructions.map((step) => (
-                    <div key={step.id} className="d-flex stepper">
-                      {step.isDone(participantInfo) ? (
-                        <Icon20CheckCircleFillGreen />
-                      ) : (
-                        <div className="stepper-num">
-                          <div>{step.id}</div>
-                        </div>
-                      )}
-                      <div className="stepper-text">
-                        <Text weight="semibold">{step.title}</Text>
-                        <Caption level="1">
-                          {step.isDone(participantInfo)
-                            ? "Выполнено"
-                            : step.description}
-                        </Caption>
+              <MemoizedCard
+                title="ИНСТРУКЦИЯ"
+                leftIcon={<Icon16Flash fill="#2787F5" width={16} height={16} />}
+                className="history-card"
+              >
+                {this.state.instructions.map((step) => (
+                  <div key={step.id} className="d-flex stepper">
+                    {step.isDone(participantInfo) ? (
+                      <Icon20CheckCircleFillGreen />
+                    ) : (
+                      <div className="stepper-num">
+                        <div>{step.id}</div>
                       </div>
+                    )}
+                    <div className="stepper-text">
+                      <Text weight="semibold">{step.title}</Text>
+                      <Caption level="1">
+                        {step.isDone(participantInfo)
+                          ? "Выполнено"
+                          : step.description}
+                      </Caption>
                     </div>
-                  ))}
-                </Div>
-              </Card>
+                  </div>
+                ))}
+              </MemoizedCard>
             </Div>
 
             <Div>
@@ -561,105 +528,82 @@ class Home extends React.Component {
               </Title>
 
               <div id="history" className="d-grid">
-                <Card
+                <MemoizedCard
                   className="history-card clickable"
-                  onClick={() => router.pushModal(MODAL_HISTORY)}
-                >
-                  <Div>
-                    <div className="d-flex align-center justify-space-between">
-                      <div className="d-flex align-center">
-                        <Icon24HistoryBackwardOutline
-                          fill="#2787F5"
-                          width={16}
-                          height={16}
-                        />{" "}
-                        <Caption
-                          level="2"
-                          weight="regular"
-                          style={{ opacity: 0.7, marginLeft: 8 }}
-                        >
-                          ИСТОРИЯ
-                        </Caption>
-                      </div>
-                      {participantInfo.history.length > 0 && (
-                        <Icon28ChevronUpOutline
-                          className="card-header__action"
-                          width={16}
-                          height={16}
-                        />
-                      )}
-                    </div>
-                    {participantInfo.history.length > 0 ? (
-                      <Fragment>
-                        <Title
-                          className="history__count"
-                          weight="medium"
-                          level="1"
-                        >
-                          {" "}
-                          {participantInfo.history.length}
-                        </Title>
-                        <Caption
-                          level="2"
-                          weight="regular"
-                          style={{ opacity: 0.7 }}
-                        >
-                          {this.declOfNum(participantInfo.history.length, [
-                            "знакомство",
-                            "знакомства",
-                            "знакомств",
-                          ])}
-                        </Caption>
-                      </Fragment>
-                    ) : (
-                      <Caption
-                        level="2"
-                        weight="regular"
-                        style={{
-                          opacity: 0.7,
-                          textAlign: "center",
-                          marginTop: 20,
-                        }}
-                      >
-                        Пока что тут пусто
-                      </Caption>
-                    )}
-                  </Div>
-                </Card>
-
-                <Card className="history-card">
-                  <Div>
-                    <div className="d-flex align-center">
-                      <Icon20UsersOutline
-                        fill="#4CD964"
+                  title="ИСТОРИЯ"
+                  leftIcon={
+                    <Icon24HistoryBackwardOutline
+                      fill="#2787F5"
+                      width={16}
+                      height={16}
+                    />
+                  }
+                  rightIcon={
+                    participantInfo.history.length > 0 && (
+                      <Icon28ChevronUpOutline
+                        className="card-header__action"
                         width={16}
                         height={16}
-                      />{" "}
+                      />
+                    )
+                  }
+                  onClick={() => router.pushModal(MODAL_HISTORY)}
+                >
+                  {participantInfo.history.length > 0 ? (
+                    <Fragment>
+                      <Title
+                        className="history__count"
+                        weight="medium"
+                        level="1"
+                      >
+                        {" "}
+                        {participantInfo.history.length}
+                      </Title>
                       <Caption
                         level="2"
                         weight="regular"
-                        style={{ opacity: 0.7, marginLeft: 8 }}
+                        style={{ opacity: 0.7 }}
                       >
-                        СООБЩЕСТВО
+                        {this.declOfNum(participantInfo.history.length, [
+                          "знакомство",
+                          "знакомства",
+                          "знакомств",
+                        ])}
                       </Caption>
-                    </div>
-
-                    <Title className="history__count" weight="medium" level="1">
-                      {participantInfo.metrics.members}
-                    </Title>
+                    </Fragment>
+                  ) : (
                     <Caption
                       level="2"
                       weight="regular"
-                      style={{ opacity: 0.7 }}
+                      style={{
+                        opacity: 0.7,
+                        textAlign: "center",
+                        marginTop: 20,
+                      }}
                     >
-                      {this.declOfNum(participantInfo.metrics.members, [
-                        "участник",
-                        "участника",
-                        "участников",
-                      ])}
+                      Пока что тут пусто
                     </Caption>
-                  </Div>
-                </Card>
+                  )}
+                </MemoizedCard>
+
+                <MemoizedCard
+                  title="СООБЩЕСТВО"
+                  leftIcon={
+                    <Icon20UsersOutline fill="#4CD964" width={16} height={16} />
+                  }
+                  className="history-card"
+                >
+                  <Title className="history__count" weight="medium" level="1">
+                    {participantInfo.metrics.members}
+                  </Title>
+                  <Caption level="2" weight="regular" style={{ opacity: 0.7 }}>
+                    {this.declOfNum(participantInfo.metrics.members, [
+                      "участник",
+                      "участника",
+                      "участников",
+                    ])}
+                  </Caption>
+                </MemoizedCard>
               </div>
             </Div>
             {/* <Div>
@@ -809,7 +753,7 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     ...bindActionCreators(
-      { setAbout, setParticipantInfo, getProfile, setSnackbar },
+      { setAbout, getProfile, setSnackbar, getParticipantInfo },
       dispatch,
     ),
   };
