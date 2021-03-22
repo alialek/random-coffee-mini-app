@@ -1,3 +1,4 @@
-import { saveCredentials } from './saveCredentials';
+import { saveCredentials } from "./saveCredentials";
+import showSnackbar from "./generateSnackbar";
 
-export { saveCredentials };
+export { saveCredentials, showSnackbar };

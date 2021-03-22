@@ -55,18 +55,16 @@ export const setNotifications = (inputData) => ({
   },
 });
 
-export const authentication = (authString) => (dispatch) => {
-  auth(authString).then((resp) => {
-    saveCredentials(resp);
-  });
-  getUserInfo().then((res) =>
-    dispatch({
+export const authentication = (authString) => async (dispatch) => {
+  const resp = await auth(authString);
+  saveCredentials(resp, async () => {
+    return dispatch({
       type: SET_INTERESTS,
       payload: {
-        data: res,
+        data: await getUserInfo(),
       },
-    }),
-  );
+    });
+  });
 };
 
 export const getParticipantInfo = (inputData) => (dispatch) =>

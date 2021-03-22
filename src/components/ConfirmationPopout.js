@@ -1,7 +1,6 @@
-import { Alert, FormLayout, Textarea } from "@vkontakte/vkui";
+import { Alert, Textarea } from "@vkontakte/vkui";
 import React, { useState } from "react";
 import { useRouter } from "@happysanta/router";
-import { complainOnUser } from "./../store/data/actions";
 import { connect } from "react-redux";
 import { complain } from "./../api/rest/complain";
 import showSnackbar from "./../services/generateSnackbar";

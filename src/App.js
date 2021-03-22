@@ -25,7 +25,7 @@ import {
 import "./App.css";
 import AboutCard from "./components/AboutCard";
 import HistoryPage from "./components/HistoryPage";
-import { getAdd, isIntroViewed } from "./vk";
+import { isIntroViewed } from "./vk";
 import {
   getProfile,
   setNotifications,
@@ -46,12 +46,11 @@ class App extends React.Component {
     }
   }
   async componentDidMount() {
-    this.props.authentication(window.location.search);
+    await this.props.authentication(window.location.search);
     if ((await isIntroViewed()) !== "ye") {
       router.replacePage(PAGE_INTRO);
     } else {
       this.props.getParticipantInfo();
-      getAdd("preloader");
     }
     this.props.setNotifications(
       Boolean(

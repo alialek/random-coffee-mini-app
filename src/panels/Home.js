@@ -7,7 +7,6 @@ import Icon20UsersOutline from "@vkontakte/icons/dist/20/users_outline";
 import Icon28RefreshOutline from "@vkontakte/icons/dist/28/refresh_outline";
 import {
   Div,
-  Snackbar,
   Button,
   Panel,
   PanelHeader,
@@ -23,6 +22,7 @@ import {
   Caption,
   Subhead,
   Textarea,
+  Gallery,
 } from "@vkontakte/vkui";
 import { getProfile, setSnackbar } from "../store/data/actions";
 import { withRouter } from "@happysanta/router";
@@ -47,6 +47,7 @@ import {
 import Icon24HistoryBackwardOutline from "@vkontakte/icons/dist/24/history_backward_outline";
 import Icon24ReportOutline from "@vkontakte/icons/dist/24/report_outline";
 import coffee from "../img/coffee.png";
+import syntax from "../img/syntax.png";
 import { getAdd, notifications } from "../vk";
 import { setAbout, getParticipantInfo } from "./../store/data/actions";
 import { tapticSelectNotification } from "./../vk/index";
@@ -55,6 +56,7 @@ import { feedback } from "./../api/rest/feedback";
 import { type } from "../api";
 import { MemoizedCard } from "./../components/IosCard";
 import showSnackbar from "./../services/generateSnackbar";
+import { contact } from "./../api/rest/contact";
 class Home extends React.Component {
   constructor(props) {
     super(props);
@@ -156,6 +158,10 @@ class Home extends React.Component {
         },
       ],
     };
+  }
+
+  openParticipant(id) {
+    contact();
   }
 
   sendType(data) {
@@ -318,6 +324,7 @@ class Home extends React.Component {
                       <>
                         <div className="d-row ">
                           <img
+                            alt="Фото участника"
                             className="profile__photo profile__photo--participant2"
                             src={participantInfo.current.info.photo_100}
                           />
@@ -380,20 +387,32 @@ class Home extends React.Component {
                             </div>
                           </InfoRow>
                         </SimpleCell>
-
                         <Link
-                          target="_blank"
                           href={`https://vk.com/im?sel=${participantInfo.current.info.id}`}
+                          target="_blank"
                         >
                           <Button
                             before={<Icon24MessageOutline />}
                             mode="secondary"
+                            onClick={this.openParticipant}
                             stretched
                             size="l"
                           >
                             <div className="d-row align-center">Написать</div>
                           </Button>
                         </Link>
+                        <Caption
+                          level="1"
+                          weight="regular"
+                          style={{
+                            opacity: 0.7,
+                            textAlign: "center",
+                            marginTop: 8,
+                          }}
+                        >
+                          Не стесняйтесь писать первыми, все участники этого
+                          приложения дают согласие на то, чтобы вы написали!
+                        </Caption>
                       </>
                     </MemoizedCard>
 
@@ -439,7 +458,11 @@ class Home extends React.Component {
                       title="ИНФОРМАЦИЯ"
                     >
                       <div className="d-col justify-center align-center">
-                        <img className="emoji-placeholder" src={donut} />
+                        <img
+                          alt="Вкусный эмодзи"
+                          className="emoji-placeholder"
+                          src={donut}
+                        />
                         <Caption
                           level="1"
                           weight="regular"
@@ -697,35 +720,53 @@ class Home extends React.Component {
               <Title level="2" className="section-header" weight="medium">
                 Статьи и материалы
               </Title>
+            </Div>
 
-              <div className="news-grid">
-                {this.state.posts.map((post, i) => (
-                  <Link key={i} href={post.link} target="_blank">
-                    <Card
-                      style={{ background: `#63b9ba url(${post.img})` }}
-                      className="news-card"
-                    >
-                      <Div>
-                        <Title
-                          level="3"
-                          className="news-card__title"
-                          weight="medium"
-                        >
-                          {post.title}
-                        </Title>
-                        <Subhead weight="regular">{post.description}</Subhead>
-                      </Div>{" "}
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+            <Gallery style={{ paddingLeft: "12px" }} slideWidth={"70%"}>
+              {this.state.posts.map((post, i) => (
+                <Link key={i} href={post.link} target="_blank">
+                  <Card
+                    style={{ background: `#63b9ba url(${post.img})` }}
+                    className="news-card"
+                  >
+                    <Div>
+                      <Title
+                        level="3"
+                        className="news-card__title"
+                        weight="medium"
+                      >
+                        {post.title}
+                      </Title>
+                      <Subhead weight="regular">{post.description}</Subhead>
+                    </Div>
+                  </Card>
+                </Link>
+              ))}
+            </Gallery>
+            <Div style={{ textAlign: "center" }}>
+              <Link href={`https://vk.com/dev_syntax`} target="_blank">
+                <h5 className="Subhead Subhead--ios Subhead--w-regular InfoRow__header">
+                  Сделано с ❤️ в Syntax
+                </h5>
+                <img
+                  alt="Syntax"
+                  style={{ width: 100, marginTop: 8 }}
+                  src={syntax}
+                />
+              </Link>
             </Div>
           </Fragment>
         )}
         {participantInfo === null && <PanelSpinner />}
         {participantInfo === "error" && (
           <Placeholder
-            icon={<img className="emoji-placeholder" src={coffee} />}
+            icon={
+              <img
+                alt="Кофейный эмодзи"
+                className="emoji-placeholder"
+                src={coffee}
+              />
+            }
             header="Ошибка"
           >
             Кто-то пролил весь рандомный кофе, попробуйте обновить.

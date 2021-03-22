@@ -150,7 +150,6 @@ class Intro extends React.Component {
     });
   }
   render() {
-    let { profile } = this.props;
     return (
       <View
         id={this.props.id}
@@ -184,7 +183,11 @@ class Intro extends React.Component {
                     <div className="blob-holder">
                       {" "}
                       <div className="blob"></div>{" "}
-                      <img className="slide__image" src={slide.icon} />
+                      <img
+                        alt="slide"
+                        className="slide__image"
+                        src={slide.icon}
+                      />
                     </div>
 
                     <Text className="slide__text">{slide.description} </Text>

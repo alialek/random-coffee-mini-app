@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { withRouter } from "@happysanta/router";
 import { connect } from "react-redux";
 import { bindActionCreators } from "redux";
-import { ModalCard, Textarea, Snackbar } from "@vkontakte/vkui";
+import { ModalCard, Textarea } from "@vkontakte/vkui";
 import { tapticNotification } from "../vk";
 import { setAbout, setSnackbar, setInterests } from "./../store/data/actions";
 import { updateAbout } from "../api";

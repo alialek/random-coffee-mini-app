@@ -1,5 +1,5 @@
-import React from 'react';
-import { Snackbar } from '@vkontakte/vkui';
+import React from "react";
+import { Snackbar } from "@vkontakte/vkui";
 /**
  *
  * @param {ReactComponent} icon
@@ -7,9 +7,14 @@ import { Snackbar } from '@vkontakte/vkui';
  * @param {Function} closeEvent
  */
 const showSnackbar = (icon, text, closeEvent) => (
-    <Snackbar action="Закрыть" onActionClick={closeEvent} onClose={closeEvent} before={icon}>
-        {text}
-    </Snackbar>
+  <Snackbar
+    action="Закрыть"
+    onActionClick={closeEvent}
+    onClose={closeEvent}
+    before={icon}
+  >
+    {text}
+  </Snackbar>
 );
 
 export default showSnackbar;

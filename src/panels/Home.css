@@ -159,6 +159,12 @@
   );
 }
 
+.Gallery {
+  height: unset;
+}
+.Gallery__layer {
+  gap: 8px;
+}
 .news-grid {
   display: grid;
   gap: 8px;
