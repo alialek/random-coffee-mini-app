@@ -162,9 +162,6 @@
 .Gallery {
   height: unset;
 }
-.Gallery__layer {
-  margin-right: 8px;
-}
 /* .news-grid {
   display: grid;
   gap: 8px;
