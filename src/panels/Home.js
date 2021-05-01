@@ -750,6 +750,7 @@ class Home extends React.Component {
                 </h5>
                 <img
                   alt="Syntax"
+                  className="footer__syntax"
                   style={{ width: 100, marginTop: 8 }}
                   src={syntax}
                 />
