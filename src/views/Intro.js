@@ -222,12 +222,12 @@ class Intro extends React.Component {
                     onClick={() => {
                       if (
                         slide.button === "Сохранить" ||
-                        slide.button === "Далее"
+                        slide.button === "Далее" ||
+                        slide.button === "Я здесь за нетворкингом!"
                       ) {
                         slide.isValid()
                           ? this.setState(() => this.state.slideIndex++)
                           : slide.fallBack();
-                        console.log(slide.isValid());
                       }
 
                       if (slide.button === "Продолжить") this.registerUser();

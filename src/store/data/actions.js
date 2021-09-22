@@ -67,9 +67,17 @@ export const authentication = (authString) => async (dispatch) => {
   });
 };
 
-export const getParticipantInfo = (inputData) => (dispatch) =>
+export const setParticipantInfo = (inputData) => ({
+  type: SET_PARTICIPANT_INFO,
+  payload: {
+    data: inputData,
+  },
+});
+
+export const getParticipantInfo = (callback) => (dispatch) =>
   user()
     .then((res) => {
+      callback(res.data?.about?.length > 0);
       dispatch({
         type: SET_PARTICIPANT_INFO,
         payload: {

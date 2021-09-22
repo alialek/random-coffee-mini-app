@@ -45,13 +45,15 @@ class AboutCard extends Component {
             title: "Сохранить",
             mode: "primary",
             action: () => {
-              if (this.props.about.length && this.props.interests.length) {
+              //this.props.about.length &&
+              if (this.props.interests.length) {
                 this.props.router.replacePopup(POPOUT_SPINNER);
                 Promise.all([
                   updateAbout(this.props.about),
                   updateInterests(this.props.interests),
                 ])
                   .then(() => {
+                    this.props.router.replacePopup(null);
                     this.props.router.popPage();
                     tapticNotification("success");
                     this.props.setSnackbar(
@@ -59,13 +61,11 @@ class AboutCard extends Component {
                     );
                   })
                   .catch(() => {
+                    this.props.router.replacePopup(null);
                     tapticNotification("error");
                     this.setState({
                       snackbar: snackUpdated(false, "Произошла ошибка"),
                     });
-                  })
-                  .finally(() => {
-                    this.props.router.replacePopup(null);
                   });
               } else {
                 this.setState({

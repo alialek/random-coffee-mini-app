@@ -21,6 +21,7 @@ import {
   PAGE_INTRO,
   MODAL_HISTORY,
   POPOUT_SPINNER,
+  POPOUT_WARNING,
 } from "./router/routers";
 import "./App.css";
 import AboutCard from "./components/AboutCard";
@@ -35,6 +36,7 @@ import {
   setInterests,
 } from "./store/data/actions";
 import Confirm from "./components/ConfirmationPopout";
+import WarningPopout from "./components/WarningPopout";
 
 class App extends React.Component {
   popout() {
@@ -43,6 +45,8 @@ class App extends React.Component {
       return <Confirm />;
     } else if (location.getPopupId() === POPOUT_SPINNER) {
       return <ScreenSpinner />;
+    } else if (location.getPopupId() === POPOUT_WARNING) {
+      return <WarningPopout />;
     }
   }
   async componentDidMount() {
@@ -50,7 +54,10 @@ class App extends React.Component {
     if ((await isIntroViewed()) !== "ye") {
       router.replacePage(PAGE_INTRO);
     } else {
-      this.props.getParticipantInfo();
+      this.props.getParticipantInfo(
+        (isEnteredAbout) =>
+          !isEnteredAbout && router.replacePopup(POPOUT_WARNING),
+      );
     }
     this.props.setNotifications(
       Boolean(

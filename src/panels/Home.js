@@ -49,7 +49,11 @@ import Icon24ReportOutline from "@vkontakte/icons/dist/24/report_outline";
 import coffee from "../img/coffee.png";
 import syntax from "../img/syntax.png";
 import { getAdd, notifications } from "../vk";
-import { setAbout, getParticipantInfo } from "./../store/data/actions";
+import {
+  setAbout,
+  getParticipantInfo,
+  setParticipantInfo,
+} from "./../store/data/actions";
 import { tapticSelectNotification } from "./../vk/index";
 import Icon16ErrorCircleFill from "@vkontakte/icons/dist/16/error_circle_fill";
 import { feedback } from "./../api/rest/feedback";
@@ -435,7 +439,7 @@ class Home extends React.Component {
                           ></Textarea>
                           <Button
                             style={{ marginTop: 8 }}
-                            mode="secondary"
+                            mode="commerce"
                             size="l"
                             stretched
                             onClick={this.sendFeedback}
@@ -536,7 +540,13 @@ class Home extends React.Component {
                       <Text weight="semibold">{step.title}</Text>
                       <Caption level="1">
                         {step.isDone(participantInfo)
-                          ? "Выполнено"
+                          ? `Выполнено${
+                              step.id === 2
+                                ? participantInfo.type === "networking"
+                                  ? ". Цель - нетворкинг"
+                                  : ". Цель - свидания"
+                                : ""
+                            }`
                           : step.description}
                       </Caption>
                     </div>
@@ -795,7 +805,13 @@ function mapDispatchToProps(dispatch) {
   return {
     dispatch,
     ...bindActionCreators(
-      { setAbout, getProfile, setSnackbar, getParticipantInfo },
+      {
+        setAbout,
+        getProfile,
+        setSnackbar,
+        getParticipantInfo,
+        setParticipantInfo,
+      },
       dispatch,
     ),
   };
