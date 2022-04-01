@@ -50,22 +50,22 @@ class App extends React.Component {
     }
   }
   async componentDidMount() {
-    await this.props.authentication(window.location.search);
-    if ((await isIntroViewed()) !== "ye") {
-      router.replacePage(PAGE_INTRO);
-    } else {
-      this.props.getParticipantInfo(
-        (isEnteredAbout) =>
-          !isEnteredAbout && router.replacePopup(POPOUT_WARNING),
-      );
-    }
-    this.props.setNotifications(
-      Boolean(
-        +window.location.search
-          .split("vk_are_notifications_enabled=")[1]
-          .charAt(0),
-      ),
-    );
+    // await this.props.authentication(window.location.search);
+    // if ((await isIntroViewed()) !== "ye") {
+    //   router.replacePage(PAGE_INTRO);
+    // } else {
+      // this.props.getParticipantInfo(
+      //   (isEnteredAbout) =>
+      //     !isEnteredAbout && router.replacePopup(POPOUT_WARNING),
+      // );
+    // }
+    // this.props.setNotifications(
+    //   Boolean(
+    //     +window.location.search
+    //       .split("vk_are_notifications_enabled=")[1]
+    //       .charAt(0),
+    //   ),
+    // );
   }
   render() {
     const { location, colorScheme, router } = this.props;

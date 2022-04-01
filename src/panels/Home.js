@@ -283,241 +283,83 @@ class Home extends React.Component {
       <Panel id={id}>
         <PanelHeader
           separator={false}
-          left={
-            <PanelHeaderButton
-              onClick={() =>
-                participantInfo !== null &&
-                participantInfo !== "error" &&
-                router.pushModal(MODAL_ABOUT)
-              }
-            >
-              <Icon24GearOutline />
-            </PanelHeaderButton>
-          }
         >
           Random Coffee
         </PanelHeader>
-        {participantInfo !== null && participantInfo !== "error" && (
+        {/* {participantInfo !== null && participantInfo !== "error" && ( */}
           <Fragment>
             <div className="profile2">
               <Div className=" profile__info2">
                 <Title className="section-header" level="2" weight="medium">
                   Твой собеседник на этой неделе
                 </Title>
-                {Boolean(Object.keys(participantInfo.current).length) &&
-                notifications ? (
-                  <div>
-                    <MemoizedCard
-                      title="СОБЕСЕДНИК"
-                      leftIcon={
-                        <Icon16UserOutline
-                          fill="#4CD964"
-                          width={16}
-                          height={16}
-                        />
-                      }
-                      rightIcon={
-                        <Icon24ReportOutline
-                          width={20}
-                          height={20}
-                          onClick={() => router.pushPopup(POPOUT_CONFIRM)}
-                          className="complain-icon clickable"
-                        />
-                      }
-                    >
-                      <>
-                        <div className="d-row ">
-                          <img
-                            alt="Фото участника"
-                            className="profile__photo profile__photo--participant2"
-                            src={participantInfo.current.info.photo_100}
-                          />
-                          <div>
-                            <Title
-                              className="profile__participant-name"
-                              level="1"
-                              weight="heavy"
-                            >
-                              {participantInfo.current.info.first_name}
-                              <br />
-                              {participantInfo.current.info.last_name}
-                            </Title>
-                          </div>
-                        </div>
-
-                        <SimpleCell disabled multiline>
-                          <InfoRow header="О себе">
-                            {" "}
-                            {participantInfo.current.info.about}
-                          </InfoRow>
-                        </SimpleCell>
-
-                        {participantInfo.current.info?.city && (
-                          <SimpleCell disabled>
-                            <InfoRow header="Город">
-                              {participantInfo.current.info.city.title}
-                            </InfoRow>
-                          </SimpleCell>
-                        )}
-                        {participantInfo.current.info?.interests && (
-                          <SimpleCell disabled multiline>
-                            <InfoRow header="Интересы">
-                              {participantInfo.current.info.interests.length > 0
-                                ? participantInfo.current.info.interests
-                                    .map((i) => this.props.defaultInterests[i])
-                                    .toString()
-                                    .split(",")
-                                    .join(", ")
-                                : "Собеседник не указал свои интересы"}
-                            </InfoRow>
-                          </SimpleCell>
-                        )}
-                        <SimpleCell multiline disabled>
-                          <InfoRow header="Что можно спросить">
-                            <div className="d-row">
-                              <div className="flex-grow-1">
-                                {this.state.ideas[this.state.random]}
-                              </div>
-                              <div
-                                className="clickable"
-                                onClick={this.getRandom}
-                              >
-                                <Icon28RefreshOutline
-                                  width={24}
-                                  height={24}
-                                  style={{ marginLeft: 8 }}
-                                />
-                              </div>
-                            </div>
-                          </InfoRow>
-                        </SimpleCell>
-                        <Link
-                          href={`https://vk.com/im?sel=${participantInfo.current.info.id}`}
-                          target="_blank"
-                        >
-                          <Button
-                            before={<Icon24MessageOutline />}
-                            mode="secondary"
-                            onClick={this.openParticipant}
-                            stretched
-                            size="l"
-                          >
-                            <div className="d-row align-center">Написать</div>
-                          </Button>
-                        </Link>
-                        <Caption
-                          level="1"
-                          weight="regular"
-                          style={{
-                            opacity: 0.7,
-                            textAlign: "center",
-                            marginTop: 8,
-                          }}
-                        >
-                          Не стесняйтесь писать первыми, все участники этого
-                          приложения дают согласие на то, чтобы вы написали!
-                        </Caption>
-                      </>
-                    </MemoizedCard>
-
-                    {this.state.isFeedbackAvailable &&
-                      !participantInfo.current?.feedback && (
-                        <MemoizedCard
-                          title="ОТЗЫВ О СОБЕСЕДНИКЕ"
-                          leftIcon={
-                            <Icon16Comment
-                              fill="#2787f5"
-                              width={16}
-                              height={16}
-                            />
-                          }
-                          className="feedback-card"
-                        >
-                          <Textarea
-                            onChange={this.setFeedback}
-                            placeholder="Удалось ли тебе поговорить с ним? Какие впечатления?"
-                          ></Textarea>
-                          <Button
-                            style={{ marginTop: 8 }}
-                            mode="commerce"
-                            size="l"
-                            stretched
-                            onClick={this.sendFeedback}
-                          >
-                            Отправить
-                          </Button>
-                        </MemoizedCard>
-                      )}
-                  </div>
-                ) : (
-                  <div>
-                    <MemoizedCard
-                      leftIcon={
-                        <Icon16UserOutline
-                          fill="#4CD964"
-                          width={16}
-                          height={16}
-                        />
-                      }
-                      title="ИНФОРМАЦИЯ"
-                    >
-                      <div className="d-col justify-center align-center">
-                        <img
-                          alt="Вкусный эмодзи"
-                          className="emoji-placeholder"
-                          src={donut}
-                        />
-                        <Caption
-                          level="1"
-                          weight="regular"
-                          style={{ opacity: 0.7, textAlign: "center" }}
-                        >
-                          {notifications && (
-                            <>
-                              Ты участник Random Coffee! <br /> <br />{" "}
-                              Возвращайся в следующий понедельник, чтобы узнать,
-                              кто твой собеседник. А пока ознакомься с
-                              материалами по нетворкингу в группе.
-                            </>
-                          )}
-                          {!notifications && (
-                            <>
-                              Чтобы принять участие в Random Coffee, необходимо
-                              включить уведомления. Это нужно для оповещения
-                              участников о новых собеседниках.
-                              <br /> <br /> Если захотите прекратить участие в
-                              нетворкинге - просто отключите уведомления.
-                            </>
-                          )}
-                        </Caption>
-
+                <div>
+                  <MemoizedCard
+                    leftIcon={
+                      <Icon16UserOutline
+                        fill="#4CD964"
+                        width={16}
+                        height={16}
+                      />
+                    }
+                    title="ИНФОРМАЦИЯ"
+                  >
+                    <div className="d-col justify-center align-center">
+                      <img
+                        alt="Вкусный эмодзи"
+                        className="emoji-placeholder"
+                        src={donut}
+                      />
+                      <Caption
+                        level="1"
+                        weight="regular"
+                        style={{ opacity: 0.7, textAlign: "center" }}
+                      >
                         {notifications && (
-                          <Button
-                            style={{ margin: "16px 0 8px 0" }}
-                            href="https://vk.com/randomcoffee"
-                            target="_blank"
-                            mode="secondary"
-                          >
-                            Перейти в группу
-                          </Button>
+                          <>
+                            Ты участник Random Coffee! <br /> <br />{" "}
+                            Возвращайся в следующий понедельник, чтобы узнать,
+                            кто твой собеседник. А пока ознакомься с
+                            материалами по нетворкингу в группе.
+                          </>
                         )}
-
                         {!notifications && (
-                          <Button
-                            style={{ margin: "16px 0 8px 0" }}
-                            target="_blank"
-                            onClick={this.changeNotifications}
-                          >
-                            Включить уведомления
-                          </Button>
+                          <>
+                            Чтобы принять участие в Random Coffee, необходимо
+                            включить уведомления. Это нужно для оповещения
+                            участников о новых собеседниках.
+                            <br /> <br /> Если захотите прекратить участие в
+                            нетворкинге - просто отключите уведомления.
+                          </>
                         )}
-                      </div>
-                    </MemoizedCard>
-                  </div>
-                )}
+                      </Caption>
+
+                      {notifications && (
+                        <Button
+                          style={{ margin: "16px 0 8px 0" }}
+                          href="https://vk.com/randomcoffee"
+                          target="_blank"
+                          mode="secondary"
+                        >
+                          Перейти в группу
+                        </Button>
+                      )}
+
+                      {!notifications && (
+                        <Button
+                          style={{ margin: "16px 0 8px 0" }}
+                          target="_blank"
+                          onClick={this.changeNotifications}
+                        >
+                          Включить уведомления
+                        </Button>
+                      )}
+                    </div>
+                  </MemoizedCard>
+                </div>
               </Div>
             </div>
-            <Div>
+            {/* <Div>
               <Title className="section-header" level="2" weight="medium">
                 Улучшить алгоритм
               </Title>
@@ -553,13 +395,12 @@ class Home extends React.Component {
                   </div>
                 ))}
               </MemoizedCard>
-            </Div>
+            </Div> */}
 
             <Div>
               <Title className="section-header" level="2" weight="medium">
                 Статистика
               </Title>
-
               <div id="history" className="d-grid">
                 <MemoizedCard
                   className="history-card clickable"
@@ -571,52 +412,19 @@ class Home extends React.Component {
                       height={16}
                     />
                   }
-                  rightIcon={
-                    participantInfo.history.length > 0 && (
-                      <Icon28ChevronUpOutline
-                        className="card-header__action"
-                        width={16}
-                        height={16}
-                      />
-                    )
-                  }
                   onClick={() => router.pushModal(MODAL_HISTORY)}
                 >
-                  {participantInfo.history.length > 0 ? (
-                    <Fragment>
-                      <Title
-                        className="history__count"
-                        weight="medium"
-                        level="1"
-                      >
-                        {" "}
-                        {participantInfo.history.length}
-                      </Title>
-                      <Caption
-                        level="2"
-                        weight="regular"
-                        style={{ opacity: 0.7 }}
-                      >
-                        {this.declOfNum(participantInfo.history.length, [
-                          "знакомство",
-                          "знакомства",
-                          "знакомств",
-                        ])}
-                      </Caption>
-                    </Fragment>
-                  ) : (
-                    <Caption
-                      level="2"
-                      weight="regular"
-                      style={{
-                        opacity: 0.7,
-                        textAlign: "center",
-                        marginTop: 20,
-                      }}
-                    >
-                      Пока что тут пусто
-                    </Caption>
-                  )}
+                  <Caption
+                    level="2"
+                    weight="regular"
+                    style={{
+                      opacity: 0.7,
+                      textAlign: "center",
+                      marginTop: 20,
+                    }}
+                  >
+                    Пока что тут пусто
+                  </Caption>
                 </MemoizedCard>
 
                 <MemoizedCard
@@ -627,14 +435,10 @@ class Home extends React.Component {
                   className="history-card"
                 >
                   <Title className="history__count" weight="medium" level="1">
-                    {participantInfo.metrics.members}
+                    2019
                   </Title>
                   <Caption level="2" weight="regular" style={{ opacity: 0.7 }}>
-                    {this.declOfNum(participantInfo.metrics.members, [
-                      "участник",
-                      "участника",
-                      "участников",
-                    ])}
+                    участников
                   </Caption>
                 </MemoizedCard>
               </div>
@@ -767,8 +571,7 @@ class Home extends React.Component {
               </Link>
             </Div>
           </Fragment>
-        )}
-        {participantInfo === null && <PanelSpinner />}
+        {/* )} */}
         {participantInfo === "error" && (
           <Placeholder
             icon={
